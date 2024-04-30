@@ -1,0 +1,60 @@
+/*
+© [2024] Microchip Technology Inc. and its subsidiaries.
+ 
+    Subject to your compliance with these terms, you may use Microchip 
+    software and any derivatives exclusively with Microchip products. 
+    You are responsible for complying with 3rd party license terms  
+    applicable to your use of 3rd party software (including open source  
+    software) that may accompany Microchip software. SOFTWARE IS ?AS IS.? 
+    NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS 
+    SOFTWARE, INCLUDING ANY IMPLIED WARRANTIES OF NON-INFRINGEMENT,  
+    MERCHANTABILITY, OR FITNESS FOR A PARTICULAR PURPOSE. IN NO EVENT 
+    WILL MICROCHIP BE LIABLE FOR ANY INDIRECT, SPECIAL, PUNITIVE, 
+    INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE OF ANY 
+    KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF 
+    MICROCHIP HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE 
+    FORESEEABLE. TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP?S 
+    TOTAL LIABILITY ON ALL CLAIMS RELATED TO THE SOFTWARE WILL NOT 
+    EXCEED AMOUNT OF FEES, IF ANY, YOU PAID DIRECTLY TO MICROCHIP FOR 
+    THIS SOFTWARE.
+*/
+
+#include <avr/io.h>
+#include <avr/cpufunc.h>
+#include "clkctrl.h"
+
+/**
+* Configures the Fuse bits.
+*/
+FUSES = 
+{
+  .BODCFG = ACTIVE_ENABLED_gc | LVL_BODLEVEL2_gc | SAMPFREQ_128HZ_gc | SLEEP_DISABLE_gc,
+  .BOOTSIZE = 0x0,
+  .CODESIZE = 0x0,
+  .OSCCFG = OSCHFFRQ_20M_gc,
+  .PDICFG = KEY_NOTACT_gc | LEVEL_BASIC_gc,
+  .SYSCFG0 = CRCSEL_CRC16_gc | CRCSRC_NOCRC_gc | RSTPINCFG_NONE_gc | UPDIPINCFG_UPDI_gc,
+  .SYSCFG1 = SUT_64MS_gc,
+  .WDTCFG = PERIOD_OFF_gc | WINDOW_OFF_gc,
+};
+
+#if   (F_CPU==24000000UL) || (F_CPU==24000000)
+#define CLK_SETTING  CLKCTRL_FRQSEL_24M_gc
+#elif (F_CPU==20000000UL) || (F_CPU==20000000)
+#define CLK_SETTING  CLKCTRL_FRQSEL_20M_gc
+#elif (F_CPU==16000000UL) || (F_CPU==16000000)
+#define CLK_SETTING  CLKCTRL_FRQSEL_16M_gc
+#elif (F_CPU==12000000UL) || (F_CPU==12000000)
+#define CLK_SETTING  CLKCTRL_FRQSEL_12M_gc
+#elif (F_CPU==8000000UL) || (F_CPU==8000000)
+#define CLK_SETTING  CLKCTRL_FRQSEL_8M_gc
+#else
+#define CLK_SETTING  CLKCTRL_FRQSEL_4M_gc
+#endif
+
+
+void CLKCTRL_Init(void)
+{
+    _PROTECTED_WRITE(CLKCTRL.MCLKCTRLB, (CLKCTRL.MCLKCTRLB & ~CLKCTRL_PEN_bm) | CLKCTRL_PBDIV_NONE_gc);
+}
+

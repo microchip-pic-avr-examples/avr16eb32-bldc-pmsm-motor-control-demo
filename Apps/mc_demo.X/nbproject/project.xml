@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://www.netbeans.org/ns/project/1">
+    <type>com.microchip.mplab.nbide.embedded.makeproject</type>
+    <configuration>
+        <data xmlns="http://www.netbeans.org/ns/make-project/1">
+            <name>mc_demo</name>
+            <creation-uuid>21e8cb78-59fb-4e8b-ac51-65ac0bb7b6a9</creation-uuid>
+            <make-project-type>0</make-project-type>
+            <c-extensions>c</c-extensions>
+            <cpp-extensions/>
+            <header-extensions>h</header-extensions>
+            <asminc-extensions/>
+            <sourceEncoding>ISO-8859-1</sourceEncoding>
+            <make-dep-projects/>
+            <sourceRootList>
+                <sourceRootElem>.</sourceRootElem>
+                <sourceRootElem>../../Embedded</sourceRootElem>
+                <sourceRootElem>../../Embedded/platforms/avr16eb32</sourceRootElem>
+            </sourceRootList>
+            <confList>
+                <confElem>
+                    <name>AVR_EB_free</name>
+                    <type>2</type>
+                </confElem>
+                <confElem>
+                    <name>AVR_EB_pro</name>
+                    <type>2</type>
+                </confElem>
+            </confList>
+            <formatting>
+                <project-formatting-style>false</project-formatting-style>
+            </formatting>
+        </data>
+    </configuration>
+</project>
