@@ -16,8 +16,8 @@ pipeline {
 	
 	environment {
 		GITHUB_OWNER = 'microchip-pic-avr-examples'	
-		GITHUB_URL ='https://github.com/microchip-pic-avr-examples/avr16eb32-bldc-pmsm-motor-control-library'
-		BITBUCKET_URL = 'https://bitbucket.microchip.com/scm/ebe/avr16eb32-bldc-pmsm-motor-control-library.git'
+		GITHUB_URL ='https://github.com/microchip-pic-avr-examples/avr16eb32-bldc-pmsm-motor-control-demo'
+		BITBUCKET_URL = 'https://bitbucket.microchip.com/scm/ebe/avr16eb32-bldc-pmsm-motor-control-demo.git'
 		SEMVER_REGEX = '^(0|[1-9]\\d*)+\\.(0|[1-9]\\d*)+\\.(0|[1-9]\\d*)+$'
 		ARTIFACTORY_SERVER = 'https://artifacts.microchip.com:7999/artifactory'
 	}	
