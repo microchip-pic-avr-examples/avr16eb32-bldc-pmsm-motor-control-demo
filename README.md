@@ -95,7 +95,7 @@ If the MPPB and the Adaptor boards are not used, the user can integrate the AVR-
 
 <br><img src="images/program_project.png">
 
-## Demo Setup
+## Communication Setup
 
 <br> The application has two types of interfaces, only one enabled at a single moment of time:
 
@@ -129,13 +129,13 @@ As an alternative, the user can press the **Load** button and then go to avr16eb
 Capture with graphs of potentiometer in percentage (green) and speed in RPM (yellow) at run-time:
 <br><img src="images/dvrt.png">
 
-<br> Application functionality:
+## Demo Setup
 
-<br>1. Short Press the button present on the MPPB board. The motor starts spinning in clockwise (CW) direction and enters in running state. LED from MPPB turns on. Speed can be adjusted by using the potentiometer present on the MPPB board.
-<br>2. Short Press the button from MPPB again. The motor is spinning down, stops and enters in idle state. LED from MPPB turns off.
-<br>3. Short Press the button a third time. The motor starts spinning in counterclockwise (CCW) direction and enters in running state. LED from MPPB turns on. Speed can be adjusted by using the potentiometer present on the MPPB board.
-<br>4. Short Press the button a fourth time. The motor is spinning down, stops and enters in idle state. LED from MPPB turns off.
-<br>5. Short Press the button a fifth time. Go back to step 1.
+1. Short Press the button present on the MPPB board. The motor starts spinning in clockwise (CW) direction and enters in running state. LED from MPPB turns on. Speed can be adjusted by using the potentiometer present on the MPPB board.
+2. Short Press the button from MPPB again. The motor is spinning down, stops and enters in idle state. LED from MPPB turns off.
+3. Short Press the button a third time. The motor starts spinning in counterclockwise (CCW) direction and enters in running state. LED from MPPB turns on. Speed can be adjusted by using the potentiometer present on the MPPB board.
+4. Short Press the button a fourth time. The motor is spinning down, stops and enters in idle state. LED from MPPB turns off.
+5. Short Press the button a fifth time. Go back to step 1.
 <br> Long Press the button (more than 1.5 seconds) to restart the application.
 <br> If a fault event occurs the motor stops and enters in idle state. LED from MPPB blinks three times and than stays on.
 
@@ -274,16 +274,15 @@ The Speed control loop is slower than the synchronization loop, it can be ten ti
 
 ## The public APIs from the Control Layer found in `motor_control.h` are the following:
 
-<br>• <b>`MC_Control_Initialize()`</b> - Initializes the peripherals and parameters needed for the application
-<br>• <b>`MC_Control_SoftStart()`</b> - Starts spinning the motor from zero RPM in Forced Commutation with a ramp-up to the switchover to synchronization speed, in a desired configurable amount of time, in either CW of CCW direction
-<br>• <b>`MC_Control_SoftStop()`</b> - Stops the motor, or in case of a fault with a ramp-down in a desired configurable amount of time
-<br>• <b>`MC_Control_DelayMs()`</b> - Corrects the delay duration to that specified by the user. Various interrupts can mess up the delay timing
-<br>• <b>`MC_Control_ReferenceSet()`</b> - Sets the amplitude target in open loop synchronization
-<br>• <b>`MC_Control_AnalogRead()`</b> - Gets the values of analog parameters like VBUS voltage, temperature, current and potentiometer at run-time, if requested by the user
-<br>• <b>`MC_Control_Speed_Get()`</b> - Acquires the value of the speed of the motor at run-time, in RPM format
-<br>• <b>`MC_Control_PeriodicHandlerRegister()`</b> - Registers a custom software callback for the main application
-<br>• <b>`MC_Control_FaultNotificationRegister()`</b> - Registers the source of fault and to send a notification to the user
-<br>• <b>`MC_Control_FaultClearAttempt()`</b> - Clears the fault after it has been registered
+<br>• <b>`MC_Control_Initialize()`</b> - Initialization function, needs to be called before any other function
+<br>• <b>`MC_Control_SoftStart()`</b> - Starts the motor with a ramp-up from zero RPM up to a target speed in forced commutation, than the application switches to Synchronization mode
+<br>• <b>`MC_Control_SoftStop()`</b> - Stops the motor leaving the power switches turned off
+<br>• <b>`MC_Control_DelayMs()`</b> - Performs a delay using a timer in the background
+<br>• <b>`MC_Control_ReferenceSet()`</b> - Sets the reference point for speed in closed loop, or the amplitude level in open loop synchronization
+<br>• <b>`MC_Control_AnalogRead()`</b> - Returns the various analog measurements
+<br>• <b>`MC_Control_Speed_Get()`</b> - Returns the rotational speed expressed in `mc_speed_t`
+<br>• <b>`MC_Control_PeriodicHandlerRegister()`</b> - Registers a custom software callback for the main application. This function must be called from main, not from interrupt context.
+<br>• <b>`MC_Control_FaultNotificationRegister()`</b> - Registers a custom software callback that specifies the source of fault and to sends a notification to the user. This function must be called from main, not from interrupt context.
 
 ## The parameters found in `mc_config.h` file to customize the application:
 
@@ -339,4 +338,5 @@ Below are some logic analyzer and oscilloscope captures, to have a better view a
 
 ## Summary
 
-<br>This project provides support for spinning a BLDC motor using a Trapezoidal Drive method and feedback from HALL sensors or from BEMF Zero-Crosses to achieve motor synchronization in Open Loop (Closed Loop over speed will be available in the next version). The control algorithm is fairly simple and robust. AVR-EB's hardware capabilities for scaling the PWM duty cycle and to generate complementary signals with dead-time using only one timer with it's waveform extension ensures the CPU doesn't have a big overhead and optimizes the memory usage and resources consumption.
+<br>This project provides support for spinning a BLDC motor using a Trapezoidal Drive method and feedback from HALL sensors or from BEMF Zero-Crosses to achieve motor synchronization in Open Loop and fixed Closed Loop for speed regulation. The control algorithm is fairly simple and robust. AVR-EB's hardware capabilities for scaling the PWM duty cycle and to generate complementary signals with dead-time using only one timer with it's waveform extension ensures the CPU doesn't have a big overhead and optimizes the memory usage and resources consumption.
+<br>The demo has an user layer that offers customizations to adjust motor and power board parameters that makes it suitable for multiple setups. There is a dedicated user layer that allow for full control without disturbing the AVR EB dedicated HW configurations.
