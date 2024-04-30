@@ -26,10 +26,11 @@ Current version 1.0.0 features:
 -	MPLAB® Data Visualizer Run Time (DVRT) communication support for plotting parameters in real time
 -   Proportional-Integral (PI) algorithm with fixed parameters for Closed Loop control over speed regulation
 
-Features coming in the next release:
+Features coming in the next releases:
+
 -	Sensored Sinusoidal drive (Normal, SVPWM, Saddle)
 -   Configurable (PI) algorithm for Closed Loop control over speed regulation
--	Hardware Over Current (OCP) and Software Over Voltage (OVP), Under Voltage (UVP), Over Temperature (OTEMP) and Motor Stall Fault support 
+-	Hardware Over Current (OCP) and Software Over Voltage (OVP), Under Voltage (UVP), Over Temperature (OTEMP) Fault support 
 -   Hall position detection tool
 -   Current measurement at run-time
 
@@ -52,7 +53,7 @@ More details and code examples on the AVR16EB32 can be found at the following li
 - [Multi-Phase Power Board (MPPB)](www.microchip.com/en-us/development-tool/EV35Z86A)
 - [AVR-EB Curiosity Nano Adaptor to MPPB](www.microchip.com/en-us/development-tool/EV88N31A)
 - BLDC Motor (Suggestion: [ACT57BLF02](https://www.act-motor.com/brushless-dc-motor-57blf-product/))
-- A Voltage power supply (24-36V and 1-3A)
+- A Voltage power supply (24-36V and 1-3A limit)
 
 ## Hardware Setup
 
@@ -98,12 +99,12 @@ If the MPPB and the Adaptor boards are not used, the user can integrate the AVR-
 
 <br> The application has two types of interfaces, only one enabled at a single moment of time:
 
-<br>1. Console Interface. To activate it, the `MC_PRINTOUT_ENABLED` must be set to true in [`mc_config.h`](#the-parameters-found-in-motor_configh-file-to-customize-the-application) file. Then simply open a PC software terminal, select the UART protocol, 8N1, with a baud-rate of 460800 bps.
+<br><b><h2>1. Console Interface</h2></b>. To activate it, the `MC_PRINTOUT_ENABLED` must be set to true in [`mc_config.h`](#the-parameters-found-in-mc_configh-file-to-customize-the-application) file. Then simply open a PC software terminal, select the UART protocol, 8N1, with a baud-rate of 460800 bps.
 <br> The serial interface provides information about the Drive mode, PWM Scale mode, Sense mode, pole-pairs number, state of the motor, direction of rotation, speed in RPM, voltage, temperature and potentiometer percentage. The periodic interval for printing variables is given in milliseconds and can be configured from `MC_PRINTOUT_REFRESH_INTERVAL` parameter.
 
 <br><img src="images/console.png">
 
-<br>2. DVRT tool Interface. To activate it, the `MC_DVRT_ENABLED` must be set to true in [`mc_config.h`](#the-parameters-found-in-motor_configh-file-to-customize-the-application) file. This tool provides capabilities to plot graph with variables in real time at run-time. To get the DVRT running follow these steps:
+<br><b><h2>2. DVRT tool Interface</h2></b> To activate it, the `MC_DVRT_ENABLED` must be set to true in [`mc_config.h`](#the-parameters-found-in-mc_configh-file-to-customize-the-application) file. This tool provides capabilities to plot graph with variables in real time at run-time. To get the DVRT running follow these steps:
 
 <br>2.1 Build, compile and program AVR-EB with DVRT support enabled.
 <br>2.2 Download and install MPLAB Data Visualizer standalone tool from this [link](https://www.microchip.com/en-us/tools-resources/debug/mplab-data-visualizer?utm_source=GitHub&utm_medium=TextLink&utm_campaign=MCU8_AVR-EB&utm_content=avr16eb32-bldc-pmsm-motor-control-library-github&utm_bu=MCU08).
@@ -113,7 +114,7 @@ If the MPPB and the Adaptor boards are not used, the user can integrate the AVR-
 <br><img src="images/choose_com_eb.png">
 <br>2.5 Set the baud-rate to 460800 bps.
 <br><img src="images/configure_baud.png">
-<br>2.6 Manually load the ELF file. Click on the red marked icon, then go to motor_control\mc_library\Apps\mc_demo.X\dist\production\mc_demo.X.production.elf and load the file. 
+<br>2.6 Manually load the ELF file. Click on the red marked icon, then navigate to the output folder and point to the elf file. 
 <br><img src="images/load_elf_file.png">
 <br>2.7 Add the potentiometer and speed variables
 <br><img src="images/add_variables.png">
@@ -121,6 +122,9 @@ If the MPPB and the Adaptor boards are not used, the user can integrate the AVR-
 <br><img src="images/tick_interval_theme.png">
 <br>2.9 Click the play button, and plot all variables button
 <br><img src="images/play_plot.png">
+
+As an alternative, the user can press the **Load** button and then go to avr16eb32-bldc-pmsm-motor-control-demo\Apps\mc_demo.X and load the mc_demo_eb_dvws file.
+<br><img src="images/dvrt_dvws.png">
 
 Capture with graphs of potentiometer in percentage (green) and speed in RPM (yellow) at run-time:
 <br><img src="images/dvrt.png">
@@ -156,7 +160,7 @@ The layers of the application are the following:
 - [Fault Layer](#fault-layer) - Handles the fault events, and stops the motor when needed to prevent irreversible damage.
 - Low-Level Drivers Layer - Drivers for low-level peripherals used by the application
 
-Users must use only the public APIs from the `motor_control.h` file so as not to alter the library functionality in any way. All the public APIs are described in the [Control Layer](#the-apis-from-the-control-layer-the-8-bit-motor-control-library-apis-are-the-following) section.
+Users must use only the public APIs from the `motor_control.h` file so as not to alter the library functionality in any way. All the public APIs are described in the [Control Layer](#the-public-apis-from-the-control-layer-found-in-motor_controlh-are-the-following) section.
 
 <br><img src="images/8bit_Motor_Control_Library_Block_Diagram.png">
 
@@ -165,8 +169,6 @@ Users must use only the public APIs from the `motor_control.h` file so as not to
 The Drive Layer generates the six PWM signals that are used to drive the motor using six-step block commutation. This layer is a wrapper for the low-level drivers of TCE and WEX. The signals' generation block diagram can be observed below.
 
 <br><img src="images/4xPWM 1.png">
-
-TCE and WEX combined have the capabilities to generate eight complementary PWM signals with dead-time in pairs of two. However, because this application is for three phase brushless motors, only six PWM signals are used.
 
 WEX has a Pattern Generation mode feature (PGM). It can take control of the output port pins from TCE without stopping the timer. PGM is very useful for Trapezoidal Drive because it can stop the drive for any phase during the floating sectors.
 
@@ -224,28 +226,9 @@ The Analog Layer is responsible of monitoring some of the Motor Parameters for f
 
 Voltage BUS, Temperature and Potentiometer are converted using the Single-Ended Conversion mode of the ADC with over sampling burst accumulation (due to a feature of the ADC present on AVR-EB a resolution of 17-bits can be achieved). The results obtained can be displayed in Normal mode without filtering, or they can be filtered, with a software filter, to get smoother values.
 
-## Fault Layer
-
-<br> The Fault Layer provides protection in case of over current (OCP), over voltage (OVP), under voltage (UVP), over temperature (OTEMP) and stall detection. The peripherals used for the Fault Layer are the Analog-to-Digital Converter (ADC), Analog Comparator (AC), Event System (EVSYS) and WEX. The Fault Layer is responsible for protecting the hardware setup from irreversible damage.
-
-The Fault Layer is divided in two categories:
-
-<br>1. Slow acting protection. It is done in software and is responsible for fault protection in case of OVP, UVP, OT and stall. The ADC samples the voltage, temperature, current and potentiometer values and converts them from raw data into human readable values that can be displayed by the user at run-time. The converted values are then compared with some threshold values (limit values set by the user). If the measured values exceed the limit values, then all three motor phases are driven to a logical level `0`. To drive all the output signals low, AVR-EB uses the WEX in Pattern Generation mode to take control of the output pins from TCE and sets them to `0`. TCE is still running in the background while WEX takes control. If the fault condition for OVP, UVP or OT are not valid anymore the normal operation is restored, after the user short-presses the button, and the motor will restart with a ramp-up. When a threshold value is exceeded, the limit is temporarily modified to create a hysteresis effect. In this way the motor will not restart spinning until the fault condition is over.
-
-<br><img src="images/fault_hysteresis.png">
-
-A stall of the motor is detected if the current motor state is running and if a new transition from either BEMF or HALL Sensors has not come for more than 90 electrical degrees (time-out condition). If stall conditions are met, the motor is stopped, and to restore the operation short press the MPPB button.
-
-<br><img src="images/stall_detection.png">
-
-<br>2. Fast acting protection. It is done in hardware and is responsible for fault protection in case of OCP. This fault handling mechanism is implemented in hardware because the current can change very fast and the system needs a quick response to prevent damaging the hardware setup. The AC sets a threshold value on one of it’s two inputs. That value represents the limit value of current that is supported by the hardware setup. The other AC input is the measured current. If the measured current exceeds the threshold value, then a hardware fault is triggered and all motor phases are driven to logical level `0`. In this case, the normal operation can be restored only by user intervention, and, in addition the fault condition must not be present anymore.
-<br> For AVR-EB the hardware fault trigger is given by an WEX interrupt. WEX has one event input enabled that is connected to the output of the AC through the Event System (EVSYS) peripheral. When the AC output is logic high `1`, WEX drives all output signal low (or a user desired state) using the hardware fault handling feature. The fault handling response time in case of over current is fairly short, usually two or three peripheral clock cycles.
-
-<br><img src="images/Over_Current_Fault.png">
-
 ## Control Layer
 
-<br> The Control Layer is a wrapper for Drive Layer, Sense Layer, Analog Interface Layer, Fault Layer and its APIs can be used in the `main.c` file by the user. This layer is responsible for updating the values of the PWM driving signals from Drive Layer based on the feedback it got from the Sense Layer. Also, this layer adjusts the driving sequence to follow the Hall/BEMF sequence to keep the synchronization, and to handle fault situations. Lastly, this layer is used to get more abstract and device independent APIs for monitoring the analog parameters.
+<br> The Control Layer is a wrapper for Drive Layer, Sense Layer, Analog Interface Layer and its APIs can be used in the `main.c` file by the user. This layer is responsible for updating the values of the PWM driving signals from Drive Layer based on the feedback it got from the Sense Layer. Also, this layer adjusts the driving sequence to follow the Hall/BEMF sequence to keep the synchronization, and to handles stall situations. Lastly, this layer is used to get more abstract and device independent APIs for monitoring the analog parameters.
 <br> This layer implements a rotor sensing position algorithm that can unify the two types of feedback sources (HALL or BEMF) and have the same approach and implementation. The goal of the algorithm is to keep the motor field in sync with the drive field, regardless of the type of feedback. Because the acquisition of BEMF and HALL data is affected by multiple factors like mechanical misalignment or noise, both of these feedback acquisition methods need a filtering algorithm to sense the correct transitions of sensors or BEMF Zero-Cross. The algorithm proposed takes the raw data from BEMF or HALL every complete PWM cycle. The sensing algorithm is called along with the drive update function every 50 μs.
 
 <br><img src="images/motor_handler_drive_update.png">
@@ -255,7 +238,10 @@ A stall of the motor is detected if the current motor state is running and if a 
 
 <br><img src="images/LUT.PNG">
 
-<br> The algorithm counts on the idea that between two transitions from sensors or the BEMF Zero-Cross there is no change in the motor’s speed and the next drive sequence of the rotor and time-out angle can be interpolated with the value of drive speed. Note that the drive speed is measured in electrical degrees per sample. If the time-out angle is equal to or bigger than 90°, then a stall is detected and the motor is forcefully stopped.
+<br> The algorithm counts on the idea that between two transitions from sensors or the BEMF Zero-Cross there is no change in the motor’s speed and the next drive sequence of the rotor and time-out angle can be interpolated with the value of drive speed. Note that the drive speed is measured in electrical degrees per sample. If the time-out angle is equal to or bigger than 120°, then a stall is detected and the motor is forcefully stopped.
+<br> A stall of the motor is detected if the current motor state is running and if a new transition from either BEMF or HALL Sensors has not come for more than 120 electrical degrees (time-out condition). If stall conditions are met, the motor is stopped, and to restore the operation short press the MPPB button.
+
+<br><img src="images/stall_detection.png">
 
 <br> Based on the calculations done by the sensing algorithm there are three possible cases:
 <br>1. The drive field is ahead of the motor field, so the drive speed must be reduced to keep synchronization.
@@ -286,64 +272,61 @@ The Speed control loop is slower than the synchronization loop, it can be ten ti
 
 <br><img src="images/closed_loop_control.png">
 
-## The APIs from the Control Layer (the 8-bit Motor Control Library APIs) are the following:
+## The public APIs from the Control Layer found in `motor_control.h` are the following:
 
-<br><img src="images/Top_Layer_Overview.png">
-
-<br>• <b>MC_Control_Initialize()</b> - Initializes the peripherals and parameters needed for the application
-<br>• <b>MC_Control_SoftStart()</b> - Starts spinning the motor from zero RPM in Forced Commutation with a ramp-up to the switchover to synchronization speed, in a desired configurable amount of time, in either CW of CCW direction
-<br>• <b>MC_Control_SoftStop()</b> - Stops the motor, or in case of a fault with a ramp-down in a desired configurable amount of time
-<br>• <b>MC_Control_DelayMs()</b> - Corrects the delay duration to that specified by the user. Various interrupts can mess up the delay timing
-<br>• <b>MC_Control_ReferenceSet()</b> - Sets the amplitude target in open loop synchronization
-<br>• <b>MC_Control_AnalogRead()</b> - Gets the values of analog parameters like VBUS voltage, temperature, current and potentiometer at run-time, if requested by the user
-<br>• <b>MC_Control_Speed_Get()</b> - Acquires the value of the speed of the motor at run-time, in RPM format
-<br>• <b>MC_Control_PeriodicHandlerRegister()</b> - Registers a custom software callback for the main application
-<br>• <b>MC_Control_FaultNotificationRegister()</b> - Registers the source of fault and to send a notification to the user
-<br>• <b>MC_Control_FaultClearAttempt()</b> - Clears the fault after it has been registered
+<br>• <b>`MC_Control_Initialize()`</b> - Initializes the peripherals and parameters needed for the application
+<br>• <b>`MC_Control_SoftStart()`</b> - Starts spinning the motor from zero RPM in Forced Commutation with a ramp-up to the switchover to synchronization speed, in a desired configurable amount of time, in either CW of CCW direction
+<br>• <b>`MC_Control_SoftStop()`</b> - Stops the motor, or in case of a fault with a ramp-down in a desired configurable amount of time
+<br>• <b>`MC_Control_DelayMs()`</b> - Corrects the delay duration to that specified by the user. Various interrupts can mess up the delay timing
+<br>• <b>`MC_Control_ReferenceSet()`</b> - Sets the amplitude target in open loop synchronization
+<br>• <b>`MC_Control_AnalogRead()`</b> - Gets the values of analog parameters like VBUS voltage, temperature, current and potentiometer at run-time, if requested by the user
+<br>• <b>`MC_Control_Speed_Get()`</b> - Acquires the value of the speed of the motor at run-time, in RPM format
+<br>• <b>`MC_Control_PeriodicHandlerRegister()`</b> - Registers a custom software callback for the main application
+<br>• <b>`MC_Control_FaultNotificationRegister()`</b> - Registers the source of fault and to send a notification to the user
+<br>• <b>`MC_Control_FaultClearAttempt()`</b> - Clears the fault after it has been registered
 
 ## The parameters found in `mc_config.h` file to customize the application:
 
 <br><b> MOTOR SETTINGS </b>
 
-<br>• <b>MOTOR_HALL_DEVIATION_CW</b> - Hall sensors are imperfect, and deviations can appear from mechanical placements or other various reasons. This parameter is calculated at start-up with a Hall scan function and it is expressed in electrical degrees
-<br>• <b>MOTOR_HALL_DEVIATION_CCW</b> - Hall sensors are imperfect, and deviations can appear from mechanical placements or other various reasons. This parameter is calculated at start-up with a Hall scan function and it is expressed in electrical degrees. Usually the deviation in the CCW direction is different from the one in the CW direction
-<br>• <b>MOTOR_PHASE_ADVANCE</b> - Can range from 0 to 90 electrical degrees. This parameter is used to obtain greater speeds than the maximum the drive algorithm would normally be able to obtain and also to optimize the power consumption
-<br>• <b>MC_MOTOR_POLE_PAIRS</b> - Can range from 1 to 28 pole pairs, usually suppplied by the motor manufacturer in the data sheet
-<br>• <b>MC_MIN_SPEED</b> - Used as target RPM speed by the ramp-up algorithm, spinning up from zero to target speed. This is the speed from where the switchover between forced commutation and synchronization loop starts
-<br>• <b>MC_RAMP_UP_DURATION</b> - The desired duration for the Ramp-up algorithm, given in milliseconds
-<br>• <b>MC_RAMP_DOWN_DURATION</b> - The desired duration for the Ramp-down algorithm, given in milliseconds
-<br>• <b>MC_STARTUP_VOLTAGE</b> - The amount of voltage supplied to the motor phases during the startup phase, given in volts. If the supply voltage is less than the start-up voltage the application will throw and error message and motor ramp-up will fail
+<br>• <b>`MOTOR_HALL_DEVIATION_CW`</b> and <b>`MOTOR_HALL_DEVIATION_CCW`</b>- Hall sensors are imperfect, and deviations can appear from mechanical placements or other various reasons. These parameters are determined manually and are expressed in electrical degrees
+<br>• <b>`MOTOR_PHASE_ADVANCE`</b> - Can range from 0 to 90 electrical degrees. This parameter is used to obtain greater speeds than the maximum the drive algorithm would normally be able to obtain and also to optimize the power consumption
+<br>• <b>`MC_MOTOR_POLE_PAIRS`</b> - Can range from 1 to 28 pole pairs, usually suppplied by the motor manufacturer in the data sheet
+<br>• <b>`MC_MIN_SPEED`</b> - Used as target RPM speed by the ramp-up algorithm, spinning up from zero to target speed. This is the speed from where the switchover between forced commutation and synchronization loop starts
+<br>• <b>`MC_RAMP_UP_DURATION`</b> - The desired duration for the Ramp-up algorithm, given in milliseconds
+<br>• <b>`MC_RAMP_DOWN_DURATION`</b> - The desired duration for the Ramp-down algorithm, given in milliseconds
+<br>• <b>`MC_STARTUP_VOLTAGE`</b> - The amount of voltage supplied to the motor phases during the startup phase, given in volts. If the supply voltage is less than the start-up voltage the application will throw and error message and motor ramp-up will fail
 
 <br><b> POWER BOARD SETTINGS </b>
 
-<br>• <b>MC_SHUNT_RESISTANCE</b> - The current sense shunt resistance, given in ohms, dependent on the power board
-<br>• <b>MC_CURR_SENSOR_GAIN</b> - The current sense amplifier, dependent on the power board
-<br>• <b>MC_CURR_SENSOR_OFFSET</b> - The current sense offset, dependent on the power board
-<br>• <b>MC_VBUS_DIVIDER</b> - The voltage divider, used to scale the VBUS to be able to measure it with the MC_VOLTAGE_REFFERENCE logic, dependent on the power board
-<br>• <b>MC_VOLTAGE_REFFERENCE</b> - The voltage reference (this application has a 3V3 logic)
-<br>• <b>MC_TEMP_K1</b> - The temperature sensor coefficient, dependent on the power board
-<br>• <b>MC_TEMP_K1</b> - The temperature sensor coefficient, dependent on the power board
+<br>• <b>`MC_SHUNT_RESISTANCE`</b> - The current sense shunt resistance, given in ohms, dependent on the power board
+<br>• <b>`MC_CURR_SENSOR_GAIN`</b> - The current sense amplifier, dependent on the power board
+<br>• <b>`MC_CURR_SENSOR_OFFSET`</b> - The current sense offset, dependent on the power board
+<br>• <b>`MC_VBUS_DIVIDER`</b> - The voltage divider, used to scale the VBUS to be able to measure it with the MC_VOLTAGE_REFFERENCE logic, dependent on the power board
+<br>• <b>`MC_VOLTAGE_REFFERENCE`</b> - The voltage reference (this application has a 3V3 logic)
+<br>• <b>`MC_TEMP_K1`</b> - The temperature sensor coefficient, dependent on the power board
+<br>• <b>`MC_TEMP_K1`</b> - The temperature sensor coefficient, dependent on the power board
 
 <br><b> PWM DRIVE SETTINGS </b>
 
-<br>• <b>PWM_DTH</b> - The value of dead-time inserted at the left of one complementary PWM signals pair, given in nanoseconds
-<br>• <b>PWM_DTL</b> - The value of dead-time inserted at the right of one complementary PWM signals pair, given in nanoseconds
-<br>• <b>PWM_PERIOD</b> - The value of the PWM signals period given in microseconds
-<br>• <b>MC_SCALE_MODE</b> - Selects the scaling from PWM signals to start from 0% up to 100% duty cycle in `MC_SCALE_BOTTOM` mode
+<br>• <b>`PWM_DTH`</b> - The value of dead-time inserted at the left of one complementary PWM signals pair, given in nanoseconds
+<br>• <b>`PWM_DTL`</b> - The value of dead-time inserted at the right of one complementary PWM signals pair, given in nanoseconds
+<br>• <b>`PWM_PERIOD`</b> - The value of the PWM signals period given in microseconds
+<br>• <b>`MC_SCALE_MODE`</b> - Selects the scaling from PWM signals to start from 0% up to 100% duty cycle in `MC_SCALE_BOTTOM` mode
 
 <br><b> APPLICATION SETTINGS </b>
 
-<br>• <b>MC_DVRT_ENABLED</b> - Enables or disables the communication DVRT tool
-<br>• <b>MC_PRINTOUT_ENABLED</b> - Enables or disables the communication using a serial software terminal. The application can have only one of `MC_DVRT_ENABLED` and `MC_PRINTOUT_ENABLED` options available at the same time, otherwise an error will appear at compilation time
-<br>• <b>MC_PRINTOUT_REFRESH_INTERVAL</b> - Used by a periodic event to print various analog parameters and motor parameters like speed in RPM, voltage VBUS etc.
+<br>• <b>`MC_DVRT_ENABLED`</b> - Enables or disables the communication DVRT tool
+<br>• <b>`MC_PRINTOUT_ENABLED`</b> - Enables or disables the information printing using a serial terminal software. The application can have only one of `MC_DVRT_ENABLED` and `MC_PRINTOUT_ENABLED` options available at the same time, otherwise an error will appear at compilation time
+<br>• <b>`MC_PRINTOUT_REFRESH_INTERVAL`</b> - Used by a periodic event to print various analog parameters and motor parameters like speed in RPM, voltage VBUS etc.
 
 <br><b> CONTROL FUNCTIONALITY SETTINGS </b>
 
-<br>• <b>MC_SPEED_REGULATOR_EN</b> - Enables or disables the closed loop over speed regulation
-<br>• <b>MC_SYNCHRONIZED</b> - Activates the synchronization loop. When the amplitude of the motor is modified or a load is applied to the motor's shaft the speed will change accordingly not to lose synchronization. If the dynamic load change is too great, after a time-out the application will detect a motor stall
-<br>• <b>MC_CONTROL_MODE</b> - Selects between sensored with Hall sensors Control `MC_SENSORED_MODE` mode and sensorless with BEMF Control mode `MC_SENSORLESS_MODE`
-<br>• <b>MC_DRIVE_MODE</b> - Selects the drive method between Trapezoidal `MC_STEPPED_MODE` and Sinusoidal `MC_CONTINUOUS_MODE` (will be available in the next version)
-<br>• <b>MC_STALL_EVENTS_THRESHOLD</b> - Number of misalignment events before throwing a stall error
+<br>• <b>`MC_SPEED_REGULATOR_EN`</b> - Enables or disables the closed loop over speed regulation
+<br>• <b>`MC_SYNCHRONIZED`</b> - Activates the synchronization loop. When the amplitude of the motor is modified or a load is applied to the motor's shaft the speed will change accordingly not to lose synchronization. If the dynamic load change is too great, after a time-out the application will detect a motor stall
+<br>• <b>`MC_CONTROL_MODE`</b> - Selects between sensored with Hall sensors Control `MC_SENSORED_MODE` mode and sensorless with BEMF Control mode `MC_SENSORLESS_MODE`
+<br>• <b>`MC_DRIVE_MODE`</b> - Selects the drive method between Trapezoidal `MC_STEPPED_MODE` and Sinusoidal `MC_CONTINUOUS_MODE` (will be available in the next version)
+<br>• <b>`MC_STALL_EVENTS_THRESHOLD`</b> - Number of misalignment events before throwing a stall error
 
 ## Results
 
