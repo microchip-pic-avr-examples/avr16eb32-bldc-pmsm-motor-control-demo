@@ -14,16 +14,20 @@
             <make-dep-projects/>
             <sourceRootList>
                 <sourceRootElem>.</sourceRootElem>
-                <sourceRootElem>../../Embedded</sourceRootElem>
-                <sourceRootElem>../../Embedded/platforms/avr16eb32</sourceRootElem>
+                <sourceRootElem>../../internal</sourceRootElem>
+                <sourceRootElem>../../interface</sourceRootElem>
+                <sourceRootElem>../../platforms</sourceRootElem>
+                <sourceRootElem>../../platform/avr16eb32</sourceRootElem>
+                <sourceRootElem>../../platform/dvrt</sourceRootElem>
+                <sourceRootElem>../../platform/utils</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>
-                    <name>AVR_EB_free</name>
+                    <name>AVR16EB32_free</name>
                     <type>2</type>
                 </confElem>
                 <confElem>
-                    <name>AVR_EB_pro</name>
+                    <name>AVR16EB32_pro</name>
                     <type>2</type>
                 </confElem>
             </confList>

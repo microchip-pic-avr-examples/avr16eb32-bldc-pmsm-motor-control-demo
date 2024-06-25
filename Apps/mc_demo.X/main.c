@@ -1,5 +1,5 @@
 /*
-Â© [2024] Microchip Technology Inc. and its subsidiaries.
+© [2024] Microchip Technology Inc. and its subsidiaries.
  
     Subject to your compliance with these terms, you may use Microchip 
     software and any derivatives exclusively with Microchip products. 
@@ -21,16 +21,10 @@
 
 #include "clkctrl.h"
 #include <util/delay.h>
-#include <stddef.h>
 #include "mc_config.h"
 #include "motor_control.h"
-#include "mc_sm.h"
-
 #include "reset.h"
 #include "button_led.h"
-
-
-static volatile mc_fault_event_t fault_event_id;
 
 uint16_t volatile my_speed;
 uint8_t  volatile my_pot;
@@ -38,12 +32,11 @@ uint8_t  volatile my_pot;
 #define MC_COMM_INIT()
 #define PRINT_OUT(...)
 
-
 #if MC_DVRT_ENABLED == true
 #include "usart.h"
 #include "DVRunTime.h"
 #undef MC_COMM_INIT 
-#define MC_COMM_INIT()     ({USART_Initialize();  DVRT_Initialize();})
+#define MC_COMM_INIT()     do{USART_Initialize(); DVRT_Initialize();} while(0)
 #endif /* MC_DVRT_ENABLED */
 
 #if MC_PRINTOUT_ENABLED == true
@@ -54,42 +47,9 @@ uint8_t  volatile my_pot;
 #define PRINT_OUT(...)      printf(__VA_ARGS__)
 #endif /* MC_PRINTOUT_ENABLED */
 
-#if (MC_DVRT_ENABLED == true) && (MC_PRINTOUT_ENABLED == true)
-#error "MC_DVRT_ENABLED and MC_PRINTOUT_ENABLED can't be both 'true' at the same time, please update mc_config.h"
-#endif /* (MC_DVRT_ENABLED == true) && (MC_PRINTOUT_ENABLED == true) */
 
-
-static void Main_Start(void);
-static void Main_Stop(void);
-static void Main_Reset_Idle(void);
-static void Main_Reset_Running(void);
-static void Main_Clear(void);
-static void Main_PeriodicPrint(void);
-
-
-/* application's states list */
-SMTF_STATES_BEGIN(mc_sm)
-SMTF_STATES_DECLARE(MOTOR_IDLE)    
-SMTF_STATES_DECLARE(MOTOR_RUN)  
-SMTF_STATES_END(mc_sm)
-
-
-/* events list */
-SMTF_EVENTS_BEGIN(mc_sm)
-SMTF_EVENTS_DECLARE(BSHORT_EVENT)           
-SMTF_EVENTS_DECLARE(BLONG_EVENT)           
-SMTF_EVENTS_DECLARE(FAULT_EVENT)           
-SMTF_EVENTS_DECLARE(PERIODIC_EVENT)           
-SMTF_EVENTS_END(mc_sm)
-
-/* transitions table */
-SMTF_TRANS_TABLE_BEGIN(mc_sm)        /* BSHORT_EVENT            BLONG_EVENT                     FAULT_EVENT              PERIODIC_EVENT                     states:       */
-SMTF_TRANS_TABLE_4_EVENTS_TO_NEW_STATES(MOTOR_RUN, Main_Start,  MOTOR_IDLE, Main_Reset_Idle,    MOTOR_IDLE, NULL,        MOTOR_IDLE, NULL)               /* MOTOR_IDLE    */
-SMTF_TRANS_TABLE_4_EVENTS_TO_NEW_STATES(MOTOR_IDLE,Main_Stop,   MOTOR_RUN, Main_Reset_Running,  MOTOR_IDLE, Main_Clear,  MOTOR_RUN, Main_PeriodicPrint)  /* MOTOR_RUNNING */
-SMTF_TRANS_TABLE_END()
-    
-SMTF_DEFINE(mc_sm, MOTOR_IDLE)
-
+#define LED_BLINK_DURATION     200 // ms
+#define LED_BLINK_NUMBER       5
 
 static void PrintConfig(void)
 {
@@ -97,111 +57,71 @@ static void PrintConfig(void)
     PRINT_OUT("\n\rScale mode: %s", (MC_SCALE_MODE==MC_SCALE_BOTTOM)?    "bottom" : "center");
     PRINT_OUT("\n\rSense mode: %s", (MC_CONTROL_MODE==MC_SENSORLESS_MODE)? "sensorless" : "sensored");
     PRINT_OUT("\n\rPole-pair number: %u", MC_MOTOR_PAIR_POLES);
+    PRINT_OUT("\n\rLong-press the button to reboot");
+    PRINT_OUT("\n\rShort-press the button to start or stop the motor");
 }
 
-static void PrintButton(void)
+static void Main_ShowFaults(mc_status_t status)
 {
-    PRINT_OUT("\n\rShort-press the button to start/stop the motor");
-}
-
-static void FaultEventNotification(void)
-{
-    switch(fault_event_id)
+#if MC_PRINTOUT_ENABLED == true
+    if(status.flags)
     {
-        case MC_FAULT_STALL_DETECTION_EVENT:
-                PRINT_OUT("\n\rStall condition occurred");
-                break;
-        case MC_FAULT_NOT_ENOUGH_VOLTAGE_EVENT:
-                PRINT_OUT("\n\rInsufficient voltage to start");
-                PRINT_OUT("\n\rIncrease the power supply voltage above %uV", (uint16_t)(0.5 + (MC_STARTUP_VOLTAGE * 2.0)));
-                break;
-        default: PRINT_OUT("\n\rUnknown fault occurred"); 
-                break;
+        const char *str_uv = "";
+        const char *str_ov = "";
+        const char *str_stall = "";
+        const char *str_hot = "";
+        const char *str_oc = "";
+        if(status.flags & MC_FAULT_UNDERVOLTAGE_MASK) str_uv = "Undervoltage ";
+        if(status.flags & MC_FAULT_OVERVOLTAGE_MASK)  str_ov = "Overvoltage ";
+        if(status.flags & MC_FAULT_STALL_MASK)     str_stall = "Stall ";
+        if(status.flags & MC_FAULT_OVERHEAT_MASK)    str_hot = "Hot ";
+        if(status.flags & MC_FAULT_OVERCURRENT_MASK)  str_oc = "Overcurrent ";
+
+        PRINT_OUT("\n\rFaults: %s%s%s%s%s", str_uv, str_ov, str_stall, str_hot, str_oc);
     }
-    fault_event_id = MC_FAULT_NO_EVENT;
-    PRINT_OUT("\n\r");
-}
-
-/* called from interrupt context */
-static void FaultHandler(mc_fault_event_t ev)
-{ 
-    fault_event_id = ev;
-}
-
-/* Called on main program context from MC_DELAY_MS macro every 1 ms */
-static void PeriodicHandler(void)
-{
-    mc_analog_data_t pot = MC_Control_AnalogRead(POTENTIOMETER);
-    MC_Control_ReferenceSet(MC_POT_NGET(pot));
-    my_pot = (uint8_t)MC_POT_FGET(pot);
-    my_speed = (uint16_t)MC_MCSPEED_TO_RPM(MC_Control_SpeedGet());
-    static uint16_t periodic_event_counter = 0;
-    periodic_event_counter ++;
-    if(periodic_event_counter == MC_PRINTOUT_REFRESH_INTERVAL)
-    {
-        periodic_event_counter = 0;
-        SMTF_HANDLER_CALL(mc_sm, PERIODIC_EVENT);
-    }  
-}
-
-static void Main_Start(void)
-{
-    static mc_direction_t direction = MC_DIR_CW;
-    
-    LedControl(true);
-    PRINT_OUT("\n\rRamping up");
-    MC_Control_SoftStart(direction);
-    PRINT_OUT("\n\rRamp-up finished, motor running ");
-    if(direction == MC_DIR_CW) 
-    {
-        PRINT_OUT("CW");
-        direction = MC_DIR_CCW; 
-    }
-    else
-    {
-        PRINT_OUT("CCW");
-        direction = MC_DIR_CW;
-    }
-}
-
-static void Main_Stop(void)
-{
-    PRINT_OUT("\n\rRamping down");
-    MC_Control_SoftStop();
-    PRINT_OUT("\n\rMotor idle");
-    LedControl(false);
-    PrintButton();
-}
-
-static void Main_Reset_Idle(void)
-{
-    PRINT_OUT("\n\r============= REBOOT ================ ");
-    ResetDevice(); 
-}
-
-static void Main_Reset_Running(void)
-{
-    MC_Control_SoftStop();
-    Main_Reset_Idle();
-}
-
-static void Main_Clear(void)
-{
-    FaultEventNotification();
-    uint8_t counter = 5;
-    while(counter--)
-    {
-        LedControl(true);
-        MC_DELAY_MS(250);
-        LedControl(false);
-        MC_DELAY_MS(250); 
-    }
-    PrintButton();
+#else /* MC_PRINTOUT_ENABLED == true */
+    (void)status;
+#endif /* MC_PRINTOUT_ENABLED == true */
 }
 
 static void Main_PeriodicPrint(void)
 {
-    PRINT_OUT("\n\rSpeed: %u rpm, Potentiometer: %u %%      ", my_speed, my_pot);
+    PRINT_OUT("\n\rSpeed: %uRPM, Current: %dmA, VBUS: %umV, Temperature: %u°C, Pot: %u%%      ",
+                my_speed,
+                MC_Control_CurrentRead(),
+                MC_Control_VoltageBusRead(),
+                MC_Control_TemperatureRead(),
+                my_pot
+                );
+}
+
+/* Called on main program context from MC_DELAY_MS macro every 1 ms */
+static void PeriodicHandler(mc_status_t status)
+{
+    MC_Control_ReferenceSet(MC_Control_FastPotentiometerRead());
+    my_pot = MC_Control_PotentiometerRead();
+    my_speed = (uint16_t)MC_MCSPEED_TO_RPM(MC_Control_SpeedGet());
+    static uint16_t periodic_event_counter = 0;
+    if(status.state == RUNNING)
+    {
+        periodic_event_counter ++;
+        if(periodic_event_counter == MC_PRINTOUT_REFRESH_INTERVAL)
+        {
+            Main_PeriodicPrint();
+            periodic_event_counter = 0;
+        }   
+    }
+}
+
+static void LedBlink(uint8_t counter)
+{
+    while(counter--)
+    {
+        LedControl(true);
+        MC_DELAY_MS(LED_BLINK_DURATION);
+        LedControl(false);
+        MC_DELAY_MS(LED_BLINK_DURATION); 
+    }
 }
 
 int main(void)
@@ -212,20 +132,59 @@ int main(void)
     MC_COMM_INIT();
     PRINT_OUT("\n\r============= START ================= ");
     MC_Control_Initialize();
-    PrintConfig();
-    PRINT_OUT("\n\rLong-press the button to reboot");
-    MC_Control_PeriodicHandlerRegister(PeriodicHandler);
-    MC_Control_FaultNotificationRegister(FaultHandler);
+    MC_Control_PeriodicHandlerRegister(PeriodicHandler);  
     MC_DELAY_MS(500);
-    PrintButton();
+    PrintConfig();
+    
+    mc_status_t prev_motor_state; prev_motor_state.state = -1;
+    mc_direction_t direction  =  MC_DIR_CW;
+    
     while(1)
     {
         MC_DELAY_MS(BUTTON_TIME_STEP);
         button_state_t b_state = ButtonGet();
+        mc_status_t motor_state = MC_Control_StatusGet();
+        
+        if(motor_state.state == FAULT) LedBlink(1);
 
-        if(b_state == BUTTON_SHORT_PRESS)                          SMTF_HANDLER_CALL(mc_sm, BSHORT_EVENT);
-        else if (b_state == BUTTON_LONG_PRESS)                     SMTF_HANDLER_CALL(mc_sm, BLONG_EVENT);
-        if(fault_event_id != MC_FAULT_NO_EVENT)                    SMTF_HANDLER_CALL(mc_sm, FAULT_EVENT);
+        if((b_state != BUTTON_IDLE) || (motor_state.word != prev_motor_state.word))
+        {
+            if (b_state == BUTTON_LONG_PRESS)
+            {
+                if(motor_state.state == RUNNING)
+                  MC_Control_StartStop(0);
+                PRINT_OUT("\n\r============= REBOOT ================ ");
+                MC_DELAY_MS(10);
+                ResetDevice();
+            }
+            switch(motor_state.state)
+            {
+                case IDLE:      if(b_state == BUTTON_SHORT_PRESS)
+                                {
+                                    PRINT_OUT("\n\rRamping-up ... %s", (direction==MC_DIR_CW)? "CW":"CCW");
+                                    LedControl(true);
+                                    MC_Control_StartStop(direction);
+                                    if(direction == MC_DIR_CW) direction = MC_DIR_CCW;
+                                    else                       direction = MC_DIR_CW;
+                                }
+                                else
+                                {
+                                    PRINT_OUT("\n\rMotor idle");
+                                }
+                                break;
+                case RUNNING:   if(b_state == BUTTON_SHORT_PRESS) 
+                                {
+                                    PRINT_OUT("\n\rRamping-down");
+                                    MC_Control_StartStop(0);
+                                    LedControl(false);
+                                }
+                                break;
+                case FAULT:     Main_ShowFaults(motor_state);
+                                LedBlink(LED_BLINK_NUMBER);
+                                break;
+                default: break;        
+            }
+            prev_motor_state = motor_state;
+        }
     }
 }
-

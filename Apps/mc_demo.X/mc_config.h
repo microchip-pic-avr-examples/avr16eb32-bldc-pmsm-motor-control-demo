@@ -1,5 +1,5 @@
 /*
-Â© [2024] Microchip Technology Inc. and its subsidiaries.
+© [2024] Microchip Technology Inc. and its subsidiaries.
  
     Subject to your compliance with these terms, you may use Microchip 
     software and any derivatives exclusively with Microchip products. 
@@ -22,37 +22,40 @@
 #ifndef MC_CONFIG_H
 #define	MC_CONFIG_H
 
-#include "mc_defines.h"
+#define MC_CONTINUOUS_MODE              (1)
+#define MC_STEPPED_MODE                 (2)
+#define MC_SENSORED_MODE                (3)
+#define MC_SENSORLESS_MODE              (4)
+#define MC_SCALE_CENTER                 (5)
+#define MC_SCALE_BOTTOM                 (6)
 
 /* possible values:  MC_SENSORED_MODE, MC_SENSORLESS_MODE  */
 #define MC_CONTROL_MODE                 MC_SENSORLESS_MODE
 
-/* possible values:   MC_STEPPED_MODE  */
+/* possible values:  MC_CONTINUOUS_MODE, MC_STEPPED_MODE  */
 #define MC_DRIVE_MODE                   MC_STEPPED_MODE
 
-/* possible values:   MC_SCALE_BOTTOM  */
+/* possible values:  MC_SCALE_CENTER, MC_SCALE_BOTTOM  */
 #define MC_SCALE_MODE                   MC_SCALE_BOTTOM
 
-
 /* motor specific settings */
-#define MOTOR_HALL_DEVIATION_CW         (0.0)    // degrees
-#define MOTOR_HALL_DEVIATION_CCW        (0.0)    // degrees
-#define MOTOR_PHASE_ADVANCE             (10.0)   // degrees
+#define MOTOR_HALL_DEVIATION_CW         (0.00)   /* degrees */
+#define MOTOR_HALL_DEVIATION_CCW        (0.00)   /* degrees */
+#define MOTOR_PHASE_ADVANCE             (10.00)  /* degrees */
 #define MC_MOTOR_PAIR_POLES             (4)      /* pole pairs */
 #define MC_MIN_SPEED                    (400)    /* RPM - minimum speed */
-#define MC_RAMP_UP_DURATION             (1500)   /* milliseconds */
-#define MC_RAMP_DOWN_DURATION           (1500)   /* milliseconds */
-#define MC_STARTUP_VOLTAGE              (3.0)    /* V peak */
+#define MC_RAMP_UP_DURATION             (1000)   /* milliseconds */
+#define MC_RAMP_DOWN_DURATION           (1000)   /* milliseconds */
+#define MC_STARTUP_VOLTAGE              (1.0)    /* V peak */
 
 /* PWM drive settings */
-#define PWM_DTH                         (250)            /* nanoseconds */
-#define PWM_DTL                         (250)            /* nanoseconds */  
+#define PWM_DTH                         (100)            /* nanoseconds */
+#define PWM_DTL                         (100)            /* nanoseconds */  
 #define PWM_PERIOD                      (50)             /* microseconds */
 
 /* board specific settings */
 #define MC_SHUNT_RESISTANCE             (0.01)   /* resistance in Ohm of the current shunt */
 #define MC_CURR_SENSOR_GAIN             (7.5)
-#define MC_CURR_SENSOR_OFFSET           (0.0)
 #define MC_VBUS_DIVIDER                 (16.0)
 #define MC_VOLTAGE_REFFERENCE           (3.3)
 #define MC_TEMP_K1                      (400.0)  /* mV - output voltage at 0 *C  */
@@ -64,9 +67,12 @@
 #define MC_PRINTOUT_REFRESH_INTERVAL    (1000)   /* milliseconds */
 
 /* control functionality settings */
-#define MC_STALL_EVENTS_THRESHOLD       (40)   /* number of misalignment events before throwing a stall error */
+#define MC_STALL_EVENTS_THRESHOLD       (20)   /* number of phase errors before throwing a stall error, MAX 255 */
+#define MC_STALL_ERROR_TOLERANCE        (60.0) /* angle error in degrees that conducts to a stall condition */
 #define MC_SPEED_REGULATOR_EN           false  /* enables a basic speed regulator, not tunable */
-#define MC_SYNCHRONIZED                 true   /* this enables the synchronization between stator and rotor, should be enabled always */
+#define MC_SYNCHRONIZED                 true   /* this enables the synchronization between stator and rotor, should be always enabled */
+#define MC_FAULT_ENABLED                true   /* this enables the fault signalling and emergency stop, should be always enabled */
+
 
 #endif	/* MC_CONFIG_H */
 
