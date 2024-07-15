@@ -52,9 +52,9 @@
 #if MC_CONTROL_MODE == MC_SENSORED_MODE
 #define MC_SENSOR_GET                   MC_Hall_IntGet
 #define MC_SENSOR_SET
-#define MC_ROTOR_OFFSET_CW              MC_DEG_TO_MCANGLE(30.0 + MOTOR_HALL_DEVIATION_CW)
-#define MC_ROTOR_OFFSET_CCW             MC_DEG_TO_MCANGLE(30.0 + MOTOR_HALL_DEVIATION_CCW)
-#define MC_POSITION_ESTIMATION_ON       false
+#define MC_ROTOR_OFFSET_CW              MC_DEG_TO_MCANGLE(-30.0 - MOTOR_HALL_DEVIATION)
+#define MC_ROTOR_OFFSET_CCW             MC_DEG_TO_MCANGLE(-30.0 + MOTOR_HALL_DEVIATION)
+#define MC_POSITION_ESTIMATION_ON       true
 #endif  /* MC_CONTROL_MODE == MC_SENSORED_MODE */
 
 #if MC_CONTROL_MODE == MC_SENSORLESS_MODE
@@ -77,7 +77,7 @@
 #define MC_MAX_SPEED                    MC_DEG_TO_MCANGLE(30.0) // degrees / sample
 #define MC_MAX_AMPLITUDE                MC_FP_TO_FIPu16(1.0)
 
-static const mc_angle_t  sensor_data[9] = 
+static const mc_angle_t  sensor_data[] = 
 {
     MC_DEG_TO_MCANGLE(240),
     MC_DEG_TO_MCANGLE(300),
@@ -88,6 +88,7 @@ static const mc_angle_t  sensor_data[9] =
     MC_DEG_TO_MCANGLE(240),
     MC_DEG_TO_MCANGLE(300),
     MC_DEG_TO_MCANGLE(0),
+    MC_DEG_TO_MCANGLE(60),
 };
 
 #if MC_DRIVE_MODE == MC_STEPPED_MODE
@@ -162,7 +163,6 @@ SMTF_TRANS_TABLE_END()
 SMTF_DEFINE(mc_sm, MOTOR_IDLE)
 
 
-/*  return values: true = fail, false = OK  */
 static void _RampUp(void)
 {
     mc_ramp_t spd, amp;
@@ -357,7 +357,7 @@ static mc_angle_t _Rotor_Position_Get(uint8_t sensor)
     return estimated_position;
 }
 
-/* returns true if abs(val) > threshold */
+/* returns 'true' if abs(val) > threshold */
 static inline bool _AbsCompare(int16_t val, int16_t threshold)
 {
     if (val < 0) val = 0 - val;
@@ -369,8 +369,8 @@ static void _Motor_Handler(void)
 {
     mc_sense_t sensor = MC_SENSOR_GET();
     MC_Analog_Run();
-    mc_angle_t stator = phase_a;
     _Drive();
+    mc_angle_t stator = phase_a;
     
     static split32_t high_precision_speed;
     uint8_t id = sensor.id;
@@ -378,10 +378,9 @@ static void _Motor_Handler(void)
   
     mc_angle_t rotor;
     rotor = _Rotor_Position_Get(id);
-
     mc_angle_t rotor_offset = (drive_direction == MC_DIR_CW) ? (MC_ROTOR_OFFSET_CW) : (MC_ROTOR_OFFSET_CCW);
+    rotor += rotor_offset;
     idiff = rotor - stator;
-    idiff += rotor_offset;
     idiff += MC_DEG_TO_MCANGLE(MOTOR_PHASE_ADVANCE);
         
     if(sync_enabled == true)

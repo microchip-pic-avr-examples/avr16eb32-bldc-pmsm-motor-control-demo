@@ -42,7 +42,7 @@ void MC_Fault_LimitsCheck(mc_analog_id_t id, uint16_t res)
     static bool uv_status = false;
     static uint16_t ovoltage = MC_VOLTAGE_TO_VBUS(MC_OVER_VOLTAGE_EVENT_LEVEL);
     static uint16_t uvoltage = MC_VOLTAGE_TO_VBUS(MC_UNDER_VOLTAGE_LIMIT);
-    static uint16_t otemp = MC_CELSIUS_TO_TEMP(MC_OVER_TEMPERATURE_LEVEL);
+    static uint16_t otemp = MC_CELSIUS_TO_TEMP(MC_OVER_TEMPERATURE_EVENT_LEVEL);
     mc_fault_event_t fault_event = MC_FAULT_NO_EVENT;
     int16_t ires;
 
@@ -92,7 +92,7 @@ void MC_Fault_LimitsCheck(mc_analog_id_t id, uint16_t res)
                                 if(temp_status == false)
                                 {
                                     temp_status = true;
-                                    otemp = MC_CELSIUS_TO_TEMP(MC_TEMPERATURE_RESTORE_LEVEL);
+                                    otemp = MC_CELSIUS_TO_TEMP(MC_OVER_TEMPERATURE_RESTORE_LEVEL);
                                     fault_event = MC_FAULT_HIGH_TEMPERATURE_EVENT;
                                 }
                             }
@@ -101,7 +101,7 @@ void MC_Fault_LimitsCheck(mc_analog_id_t id, uint16_t res)
                                 if(temp_status == true)
                                 {
                                     temp_status = false;
-                                    otemp = MC_CELSIUS_TO_TEMP(MC_OVER_TEMPERATURE_LEVEL);
+                                    otemp = MC_CELSIUS_TO_TEMP(MC_OVER_TEMPERATURE_EVENT_LEVEL);
                                     fault_event = MC_FAULT_HIGH_TEMPERATURE_RESTORE;
                                 }
                             }

@@ -39,9 +39,9 @@
 #define MC_SCALE_MODE                   MC_SCALE_BOTTOM
 
 /* motor specific settings */
-#define MOTOR_HALL_DEVIATION_CW         (0.00)   /* degrees */
-#define MOTOR_HALL_DEVIATION_CCW        (0.00)   /* degrees */
-#define MOTOR_PHASE_ADVANCE             (10.00)  /* degrees */
+#define MOTOR_HALL_DEVIATION            (0.00)   /* degrees */
+#define MOTOR_HALL_INVERTED             true
+#define MOTOR_PHASE_ADVANCE             (15.00)  /* degrees */
 #define MC_MOTOR_PAIR_POLES             (4)      /* pole pairs */
 #define MC_MIN_SPEED                    (400)    /* RPM - minimum speed */
 #define MC_RAMP_UP_DURATION             (1000)   /* milliseconds */
@@ -67,7 +67,7 @@
 #define MC_PRINTOUT_REFRESH_INTERVAL    (1000)   /* milliseconds */
 
 /* control functionality settings */
-#define MC_STALL_EVENTS_THRESHOLD       (20)   /* number of phase errors before throwing a stall error, MAX 255 */
+#define MC_STALL_EVENTS_THRESHOLD       (50)   /* number of phase errors before throwing a stall error, MAX 255 */
 #define MC_STALL_ERROR_TOLERANCE        (60.0) /* angle error in degrees that conducts to a stall condition */
 #define MC_SPEED_REGULATOR_EN           false  /* enables a basic speed regulator, not tunable */
 #define MC_SYNCHRONIZED                 true   /* this enables the synchronization between stator and rotor, should be always enabled */

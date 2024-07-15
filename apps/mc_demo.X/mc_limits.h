@@ -23,9 +23,9 @@
 #define	MC_LIMITS_H
 
 #define MC_OVER_CURRENT_PEAK_EVENT_LEVEL    (44.0) // Amperes
-#define MC_OVER_CURRENT_AVG_EVENT_LEVEL     (5.0)  // Amperes
-#define MC_OVER_TEMPERATURE_LEVEL           (60.0) // Celsius Degrees
-#define MC_TEMPERATURE_RESTORE_LEVEL        (50.0) // Celsius Degrees
+#define MC_OVER_CURRENT_AVG_EVENT_LEVEL     (10.0) // Amperes
+#define MC_OVER_TEMPERATURE_EVENT_LEVEL     (60.0) // Celsius Degrees
+#define MC_OVER_TEMPERATURE_RESTORE_LEVEL   (50.0) // Celsius Degrees
 #define MC_OVER_VOLTAGE_EVENT_LEVEL         (50.0) // Volts
 #define MC_OVER_VOLTAGE_RESTORE_LEVEL       (49.0) // Volts
 #define MC_UNDER_VOLTAGE_RESTORE_LEVEL      (7.0)  // Volts

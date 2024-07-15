@@ -4,7 +4,7 @@
     "content": {
         "metaDataVersion": "1.3.0",
         "name": "com.microchip.mcu8.mplabx.project.avr16eb32-bldc-pmsm-motor-control-demo",
-        "version": "1.1.0",
+        "version": "1.1.1",
         "displayName": "Motor Control With AVR",
         "projectName": "avr16eb32-bldc-pmsm-motor-control-demo",
         "shortDescription": "Example for a BLDC Motor Control application, using the new AVR-EB family of devices. Motor control with sensored or sensorless feedback",
