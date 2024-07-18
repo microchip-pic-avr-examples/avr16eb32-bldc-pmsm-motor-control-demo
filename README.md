@@ -36,11 +36,11 @@
 - [Troubleshooting Guide](#troubleshooting-guide)
   - [Scenario 1: Can't program the board](#scenario-1-cant-program-the-board)
   - [Scenario 2: The motor does nothing when the MPPB button is pressed](#scenario-2-the-motor-does-nothing-when-the-mppb-button-is-pressed)
-  - [Scenario 3: The motor starts spinning with vibrations and stops, then red LED blinks five times](#scenario-3-the-motor-starts-spinning-with-vibrations-and-stops-then-red-led-blinks-five-times)
-  - [Scenario 4: The motor starts, spins a few times, then stops or run eratically](#scenario-4-the-motor-starts-spins-a-few-times-then-stops-or-run-eratically)
+  - [Scenario 3: The motor starts spinning with vibrations and stops, then the red LED blinks five times](#scenario-3-the-motor-starts-spinning-with-vibrations-and-stops-then-the-red-led-blinks-five-times)
+  - [Scenario 4: The motor starts, spins a few times, then stops or runs erratically](#scenario-4-the-motor-starts-spins-a-few-times-then-stops-or-runs-erratically)
   - [Scenario 5: The motor is spinning, but it consumes a lot of current](#scenario-5-the-motor-is-spinning-but-it-consumes-a-lot-of-current)
   - [Scenario 6: Motor starts, then unexpectedly starts shaking, vibrating, then stops](#scenario-6-motor-starts-then-unexpectedly-starts-shaking-vibrating-then-stops)
-  - [Scenario 7: Motor starts normally, but when turning the potentiometer it enters stall mode, then stops](#scenario-7-motor-starts-normally-but-when-turning-the-potentiometer-it-enters-stall-mode-then-stops)
+  - [Scenario 7: Motor starts normally, but when turning the potentiometer it enters Stall mode, then stops](#scenario-7-motor-starts-normally-but-when-turning-the-potentiometer-it-enters-stall-mode-then-stops)
   - [Scenario 8: Console Interface doesn't display any data](#scenario-8-console-interface-doesnt-display-any-data)
   - [Scenario 9: DVRT tool doesn't display any data](#scenario-9-dvrt-tool-doesnt-display-any-data)
   - [Scenario 10: Changes made in `mc_config.h` have no effect](#scenario-10-changes-made-in-mc_configh-have-no-effect)
@@ -121,7 +121,7 @@ The AVR16EB32 Curiosity Nano Development board is used along with the MPPB, AVR 
     - Motor PHASE A -> MPPB PHASE A
     - Motor PHASE B -> MPPB PHASE B
     - Motor PHASE C -> MPPB PHASE C
-5. If Sensored control is preferred connect motor Hall wires to the HALL SENSOR connector from the MPPB in this order: 
+5. If Sensored control is preferred, connect motor Hall wires to the HALL SENSOR connector from the MPPB in this order: 
     - Motor HALL A -> MPPB HALL A
     - Motor HALL B -> MPPB HALL B
     - Motor HALL C -> MPPB HALL C.
@@ -142,7 +142,7 @@ If the MPPB and the Adaptor boards are not used, the user can integrate the AVR 
 
 2. Open the ```mc_demo.X``` project in MPLAB X IDE.
 
-3. Right click the project and select Set as main project.
+3. Right click the project and select Set as Main Project.
 
 <br><img src="images/set_main_project.png">
 
@@ -160,7 +160,7 @@ If the MPPB and the Adaptor boards are not used, the user can integrate the AVR 
 
 ### Predefined Config Settings
 
-This is a set of configuration settings, appart from the default values, needed to run the demo in Trapezoidal Sensorless/Sensored or Sinusoidal Sensored mode, with the motor ACT57BLF02. Overwrite the settings from [`mc_config.h`](#configurable-parameters) file with the ones listed below: 
+This is a set of configuration settings, apart from the default values, needed to run the demo in Trapezoidal Sensorless/Sensored or Sinusoidal Sensored mode, with the motor ACT57BLF02. Overwrite the settings from [`mc_config.h`](#configurable-parameters) file with the ones listed below: 
 
 <br><h4> 1. Trapezoidal Sensorless </h4></br>
 
@@ -200,7 +200,7 @@ For Sensorless mode, the `MC_MIN_SPEED` must be set to at least 10-15% of the no
 #define MC_MIN_SPEED                    (100)    /* RPM - minimum speed */
 ```
 
-For Sensored mode, the `MOTOR_HALL_INVERTED` must be set to either `true` or `false` depending on the motor manufacturing. If this parameter is set to the wrong value, most probably the motor will enter in a stall condition, or the power consumption will be high. For more details see [Sensored Mode](#sensored-mode).
+For Sensored mode, the `MOTOR_HALL_INVERTED` must be set to either `true` or `false`, depending on the motor manufacturing. If this parameter is set to the wrong value, it is probable that the motor will enter a stall condition, or the power consumption will be high. For more details see [Sensored Mode](#sensored-mode).
 
 <br><h4> 3. Sinusoidal Sensored </h4></br>
 
@@ -219,7 +219,7 @@ For Sensored mode, the `MOTOR_HALL_INVERTED` must be set to either `true` or `fa
 #define MC_MIN_SPEED                    (100)    /* RPM - minimum speed */
 ```
 
-For Sensored mode, the `MOTOR_HALL_INVERTED` must be set to either `true` or `false` depending on the motor manufacturing. If this parameter is set to the wrong value, most probably the motor will enter in a stall condition, or the power consumption will be high. For more details see [Sensored Mode](#sensored-mode).
+For Sensored mode, the `MOTOR_HALL_INVERTED` must be set to either `true` or `false`, depending on the motor manufacturing. If this parameter is set to the wrong value, it is probable that the motor will enter a stall condition, or the power consumption will be high. For more details see [Sensored Mode](#sensored-mode).
 
 After all the steps from [Quick Start Guide](#quick-start-guide) are completed, turn the MPPB potentiometer to 50 and press the MPPB button to spin the motor in clockwise direction.
 
@@ -227,16 +227,16 @@ After all the steps from [Quick Start Guide](#quick-start-guide) are completed, 
 
 ### Basic Functionality
 
-<br>1. Short press the button present on the MPPB board. The motor starts spinning in clockwise (CW) direction and enters in running state. LED from MPPB turns on. Speed can be adjusted by using the potentiometer present on the MPPB board.
-<br>2. Short press the button from MPPB again. The motor spins down, stops and enters an Idle state. LED from MPPB turns off.
-<br>3. Short press the button a third time. The motor starts spinning in counterclockwise (CCW) direction and enters in running state. LED from MPPB turns on. Speed can be adjusted by using the potentiometer present on the MPPB board.
-<br>4. Short press the button a fourth time. The motor is spinning down, stops and enters in idle state. LED from MPPB turns off.
+<br>1. Short press the button present on the MPPB board. The motor starts spinning in clockwise (CW) direction and enters the Running state. The LED from MPPB turns on. Speed can be adjusted by using the potentiometer present on the MPPB board.
+<br>2. Short press the button from MPPB again. The motor spins down, stops and enters an Idle state. The LED from MPPB turns off.
+<br>3. Short press the button a third time. The motor starts spinning in counterclockwise (CCW) direction and enters the Running state. The LED from MPPB turns on. The Speed can be adjusted by using the potentiometer present on the MPPB board.
+<br>4. Short press the button a fourth time. The motor is spinning down, stops and enters Idle state. The LED from MPPB turns off.
 <br>5. Short press the button a fifth time. Go back to step 1. </br>
 <br> Long press the button (more than 1.5 seconds) to restart the application.
-<br> If a Fault event occurs the motor stops and enters in Idle state. LED from MPPB blinks until the fault condition is cleared.
+<br> If a Fault event occurs, the motor stops and enters the Idle state. The LED from MPPB blinks until the fault condition is cleared.
 
-<br> After the [Quick Start Guide](#quick-start-guide) setup steps are done, the user can start spinning the motor using the button present on the MPPB. By short-pressing the button (under 1.5 seconds) the motor will start spinning in the CW direction in Forced Commutation using a ramp-up to reach a threshold value of speed in a configurable amount of time. After the ramp-up is finished, the application switches to Synchronization mode, either with feedback coming from Hall sensors or BEMF ZCD, depending what is chosen in the `mc_config.h` file.
-<br> The speed of the motor is imposed from the potentiometer present on the MPPB. When the motor starts spinning and the synchronization and speed regulation algorithms start working, the LED from MPPB is turned ON. The motor can be stopped by short-pressing the button again. When the stop command is given, the application sets the three motor phases in Floating state, amplitude and speed are set to zero, and from then on the motor will stop naturally, depending on the rotor inertia and the load.
+<br> After the [Quick Start Guide](#quick-start-guide) setup steps are done, the user can start spinning the motor using the button on the MPPB. By short-pressing the button (under 1.5 seconds) the motor will start spinning in the CW direction in Forced Commutation using a ramp-up to reach a threshold value of speed in a configurable amount of time. After the ramp-up is finished, the application switches to Synchronization mode, either with feedback coming from Hall sensors or BEMF ZCD, depending what is chosen in the `mc_config.h` file.
+<br> The speed of the motor is imposed from the potentiometer present on the MPPB. When the motor starts spinning and the synchronization and speed regulation algorithms start working, the LED from MPPB is turned ON. The motor can be stopped by short-pressing the button again. When the stop command is given, the application sets the three motor phases in Floating state; amplitude and speed are set to zero, and from then on the motor will stop naturally, depending on the rotor inertia and the load.
 <br> If the button is short-pressed a third time, the motor will start spinning again, but this time in the CCW direction, with the same functionality described above. The user can change the direction of rotation at run-time for as many times as needed, by two short presses of the button from the MPPB. The application can be restarted by long-pressing the button from MPPB for more than 1.5 seconds.
 <br> In case of a Fault event, the motor stops spinning and enters in an Idle state. The normal operation can only be restored if the fault condition is gone and the user short presses the button.
 <br> The main application functionality and overview flowcharts are shown below:
@@ -323,11 +323,11 @@ In case the application doesn't have the described behaviour from [Application U
 <br> The APIs from the Motor Control Stack found in `motor_control.h` are the following:
 
 <br>• <b>`MC_Control_Initialize()`</b> - Initialization function, needs to be called before any other function
-<br>• <b>`MC_Control_StartStop()`</b> - Starts or stops the motor depending on which state it is found in when the start-stop event is received.
+<br>• <b>`MC_Control_StartStop()`</b> - Starts or stops the motor depending on which state it is found in when the start-stop event is received
 <br>• <b>`MC_Control_DelayMs()`</b> - Performs a delay using a timer in the background
 <br>• <b>`MC_Control_ReferenceSet()`</b> - Sets the reference point for speed in closed loop, or the amplitude level in open loop synchronization
 <br>• <b>`MC_Control_PotentiometerRead()`</b> - Returns potentiometer value expressed in percentage
-<br>• <b>`MC_Control_FastPotentiometerRead()`</b> - Returns potentiometer value expressed in raw ADC format
+<br>• <b>`MC_Control_FastPotentiometerRead()`</b> - Returns potentiometer value expressed in raw Analog-to-Digital (ADC) format
 <br>• <b>`MC_Control_VoltageBusRead()`</b> - Returns voltage bus value expressed in volts
 <br>• <b>`MC_Control_TemperatureRead()`</b> - Returns MOSFET transistors temperature expressed in degrees Celsius
 <br>• <b>`MC_Control_CurrentRead()`</b> - Returns mean application current consumption expressed in milliamperes
@@ -350,7 +350,7 @@ The parameters from config file used to customize the application are the follow
 <br>• <b>`MC_MIN_SPEED`</b> - Used as target RPM speed by the ramp-up algorithm, spinning up from zero to target speed. This is the speed from where the switchover between forced commutation and synchronization loop starts. If Sensorless mode is used, this paramater must be set to at least 10-15% of the nominal speed of the motor.
 <br>• <b>`MC_RAMP_UP_DURATION`</b> - The desired duration for the Ramp-up algorithm, given in milliseconds
 <br>• <b>`MC_RAMP_DOWN_DURATION`</b> - The desired duration for the Ramp-down algorithm, given in milliseconds
-<br>• <b>`MC_STARTUP_VOLTAGE`</b> - The amount of voltage supplied to the motor phases during the startup phase, given in volts. If the supply voltage is less than the start-up voltage the application will throw and error message and motor ramp-up will fail.
+<br>• <b>`MC_STARTUP_VOLTAGE`</b> - The amount of voltage supplied to the motor phases during the start-up phase, given in volts. If the supply voltage is less than the start-up voltage, the application will throw an error message and the motor ramp-up will fail.
 
 <br><b> POWER BOARD SETTINGS </b>
 
@@ -377,18 +377,18 @@ The parameters from config file used to customize the application are the follow
 <br><b> CONTROL FUNCTIONALITY SETTINGS </b>
 
 <br>• <b>`MC_SPEED_REGULATOR_EN`</b> - Enables or disables the closed loop over speed regulation
-<br>• <b>`MC_SYNCHRONIZED`</b> - Activates the synchronization loop. When the amplitude of the motor is modified or a load is applied to the motor's shaft the speed will change accordingly not to lose synchronization. If the dynamic load change is too great, after a time-out the application will detect a motor stall
+<br>• <b>`MC_SYNCHRONIZED`</b> - Activates the synchronization loop. When the amplitude of the motor is modified or a load is applied to the motor's shaft, the speed will change accordingly so as not to lose synchronization. If the dynamic load change is too great, after a time-out, the application will detect a motor stall.
 <br>• <b>`MC_CONTROL_MODE`</b> - Selects between sensored with Hall sensors Control `MC_SENSORED_MODE` mode and sensorless with BEMF Control mode `MC_SENSORLESS_MODE`
 <br>• <b>`MC_DRIVE_MODE`</b> - Selects the drive method between Trapezoidal `MC_STEPPED_MODE` and Sinusoidal `MC_CONTINUOUS_MODE`
 <br>• <b>`MC_STALL_EVENTS_THRESHOLD`</b> - Number of misalignment events before throwing a stall error
 <br>• <b>`MC_STALL_ERROR_TOLERANCE`</b> - Angle error expressed in electrical degrees that conducts to a stall condition
 <br>• <b>`MC_FAULT_ENABLED`</b> - Enables or disables the fault handling mechanism
 
-<br> All these parameters are set to safe default values. With the initial values the motor will spin, maybe not optimal, but it is a good starting point to start tunning for a custom application.
+<br> All these parameters are set to safe default values. With the initial values, the motor will spin, maybe not optimal, but it is a good starting point to start tunning for a custom application.
 
 ### Fault Limits
 
-The configurabe threshold values found in `mc_limits.h` file are the following:
+The configurable threshold values found in `mc_limits.h` file are the following:
 
 <br>• <b>`MC_OVER_CURRENT_PEAK_EVENT_LEVEL`</b> - The peak current limit, given in amperes. Used to protect the MOSFETS from irreversible damage
 <br>• <b>`MC_OVER_CURRENT_AVG_EVENT_LEVEL`</b> - The continuous average current limit, given in amperes. Used for overload protection, or if the phase advance difference between the stator and the rotor is too big
@@ -421,11 +421,11 @@ The User Layer represents the application from the `main` file and it integrates
 
 <br><img src="images/mc_interrupt_time_diagram.png">
 
-<br> The Control layer uses a state machine consisting of three states (`MOTOR_IDLE`, `MOTOR_RUNNING` and `MOTOR_FAULT`) to be aware at all times about the motor status and what action needs to be taken next. The `START_STOP_EVENT` coming from the main application starts or stops the motor. The `FAULT_SET_EVENT` and `FAULT_CLEAR_EVENT` are used to trigger and clear fault situations. The state machine flowchart can be depicted from the image below.
+<br> The Control layer uses a state machine consisting of three states (`MOTOR_IDLE`, `MOTOR_RUNNING` and `MOTOR_FAULT`) to be aware at all times about the motor status and what action needs to be taken next. The `START_STOP_EVENT` coming from the main application starts or stops the motor. The `FAULT_SET_EVENT` and `FAULT_CLEAR_EVENT` are used to trigger and clear fault situations. The state machine flowchart is depicted in the image below:
 
 <br><img src="images/fault_mc_sm.png">
 
-<br> This layer implements a rotor sensing position algorithm that can unify the two types of feedback sources (HALL or BEMF) and have the same approach and implementation. The goal of the algorithm is to keep the motor field in sync with the drive field, regardless of the type of feedback. Because the acquisition of BEMF and HALL data is affected by multiple factors like mechanical misalignment or noise, both of these feedback acquisition methods need a filtering algorithm to sense the correct transitions of sensors or BEMF Zero-Cross. The algorithm proposed takes the raw data from BEMF or HALL every complete PWM cycle. The sensing algorithm is called along with the drive update function every 50 μs.
+<br> This layer implements a rotor sensing position algorithm that can unify the two types of feedback sources (HALL or BEMF) and have the same approach and implementation. The goal of the algorithm is to keep the motor field in sync with the drive field, regardless of the type of feedback. Because the acquisition of BEMF and HALL data is affected by multiple factors like mechanical misalignment or noise, both of these feedback acquisition methods need a filtering algorithm to sense the correct transitions of sensors or BEMF Zero-Cross. The proposed algorithm takes the raw data from BEMF or HALL every complete PWM cycle. The sensing algorithm is called along with the drive update function every 50 μs.
 
 <br><img src="images/motor_handler_drive_update.png">
 
@@ -447,10 +447,10 @@ The User Layer represents the application from the `main` file and it integrates
 
 <br><img src="images/behind.png">
 
-<br>To summarize the synchronization method, the sensing algorithm basically estimates the rotor’s position and then calculates the difference between the stator (driving field) and the rotor (motor field). The result (in electrical degrees) represents how much the drive field is out of phase with the motor field. Based on this difference, the drive speed is updated to keep a constant phase shift between stator and rotor. The phase shift value can be configured by the user and it depends upon the load of the motor. If the phase shift is too small the torque might not be enough to keep the synchronization. If the phase shift is too big the synchronization is also lost. An optimal value is determined to have enough torque produced and an efficient power consumption.
+<br>To summarize the synchronization method, the sensing algorithm basically estimates the rotor’s position and then calculates the difference between the stator (driving field) and the rotor (motor field). The result (in electrical degrees) represents how much the drive field is out of phase with the motor field. Based on this difference, the drive speed is updated to keep a constant phase shift between stator and rotor. The phase shift value can be configured by the user and it depends upon the load of the motor. If the phase shift is too small the torque might not be enough to keep the synchronization. If the phase shift is too big, the synchronization is also lost. An optimal value is determined to have enough torque produced and an efficient power consumption.
 <br><img src="images/rotor_stator.png">
 
-<br> The motor's efficiency, from the power consumption point of view, can be increased by adjusting the phase advance angle or the “lead” angle. In order to have the best efficiency, the BEMF / HALL signals must be in phase with the current signals for each motor phase. Due to the motor’s inductance, the current signals lag the voltage BEMF/HALL signals, so phase advance is used for switching the driving sequence in advance. Because the voltage is switched in advance, the current has time to reach the maximum point until the signal from BEMF or HALL has a transition that marks a sector change. Phase advance angle is added in the speed adjusting algorithm and it is used when the difference between the stator field and the rotor field is calculated. Based on the difference the speed is increased or decreased to keep synchronization.
+<br> The motor's efficiency, from the power consumption point of view, can be increased by adjusting the phase advance angle or the “lead” angle. In order to have the best efficiency, the BEMF / HALL signals must be in phase with the current signals for each motor phase. Due to the motor’s inductance, the current signals lag the voltage BEMF/HALL signals, so phase advance is used for switching the driving sequence in advance. Because the voltage is switched in advance, the current has time to reach the maximum point until the signal from BEMF or HALL has a transition that marks a sector change. Phase advance angle is added in the speed adjusting algorithm and it is used when the difference between the stator field and the rotor field is calculated. Based on the difference, the speed is increased or decreased to keep synchronization.
 
 <br><img src="images/phase_advance.png"></br>
 
@@ -461,7 +461,7 @@ The User Layer represents the application from the `main` file and it integrates
 
 <br><img src="images/control_loops.png">
 
-The motor speed behavior using Close Loop for Speed Control can be depicted from the illustration below. In this figure, the motor spins up to 1000 RPM and then keeps this value for speed by changing the amplitude level if a load is applied to the motor’s shaft.
+The motor speed behavior using Close Loop for Speed Control is depicted in the illustration below. In this figure, the motor spins up to 1000 RPM and then keeps this value for speed by changing the amplitude level, if a load is applied to the motor’s shaft.
 
 <br><img src="images/closed_loop_control.png">
 
@@ -488,7 +488,7 @@ Example of a LUT used to generate sinewave signals:
 
 <br><img src="images/Sine_LUT.png">
 
-The sinwave signals frequency increases if the speed of the motor is increased and decreases if the speed of the motor is decreased. The amplitude of the sinewave is changed by modulating the duty cycles of the PWM signals. AVR EB can change the amplitude of the sinewave signals in hardware by just changing the values written in a few registers without the need to recalculate the values from the LUT and add extra mathematical computation that adds to the CPU overhead.
+The sinewave signals frequency increases if the speed of the motor is increased and decreases if the speed of the motor is decreased. The amplitude of the sinewave is changed by modulating the duty cycles of the PWM signals. AVR EB can change the amplitude of the sinewave signals in hardware by just changing the values written in a few registers without the need to recalculate the values from the LUT and add extra mathematical computation that adds to the CPU overhead.
 
 Sinusoidal signal generated using PWM duty cycle signal modulation:
 <br><img src="images/Sinewave_PWM_Modulation.png">
@@ -512,19 +512,19 @@ The driving signals update happens in an Interrupt Service Routine (ISR) every 5
 
 #### Sensored Mode
 
-<br> Sometimes, Hall sensors have mechanical misalignments due to manufacturing imperfections or due to user's intervention. Because of this, the data acquisition can be affected, resulting in non-optimal running or even bad behaviour of the motor. To compensate for these errors, the `MOTOR_HALL_DEVIATION` parameter should be adjusted using the following steps:
+<br> Sometimes, Hall sensors have mechanical misalignments due to manufacturing imperfections or due to user's intervention. Because of this, the data acquisition can be affected, resulting in non-optimal running or even bad behaviour of the motor. To compensate for these errors, the `MOTOR_HALL_DEVIATION` parameter can be adjusted using the following steps:
 1. Set the `MOTOR_HALL_DEVIATION` parameter to 0.00, compile and program.
 2. Spin the motor CW then CCW and write down the reported speeds.
-3. If recorded speed in CW direction is higher than that in CCW direction, then `MOTOR_HALL_DEVIATION` parameter needs to be increased. As a rule of thumb for every 100 RPM one degree is added to deviation.
-<br>Eg. if CW speed is 5200 rpm and CCW speed is 4800 rpm, difference is 400 rpm then, first tried value for `MOTOR_HALL_DEVIATION` is 4 degrees.
-4. If recorded speed in CW direction is lower than that in CCW direction, then `MOTOR_HALL_DEVIATION` parameter needs to be decreased. This parameter is allowed to have both a positive or a negative value.
+3. If recorded speed in CW direction is higher than that in CCW direction, then `MOTOR_HALL_DEVIATION` parameter needs to be increased. As a rule of thumb, for every 100 RPM one degree is added to deviation.
+<br>E.g: If CW speed is 5200 RPM and CCW speed is 4800 RPM, the difference is 400 RPM then, the first tried value for `MOTOR_HALL_DEVIATION` is 4 degrees.
+4. If the recorded speed in CW direction is lower than that in CCW direction, then the `MOTOR_HALL_DEVIATION` parameter needs to be decreased. This parameter is allowed to have both a positive or a negative value.
 5. Repeat the process from step 2 until the speed and current consumption have very close values in CW and CCW directions.
 
 <br> Another parameter that must be adjusted is `MOTOR_HALL_INVERTED`. Hall sensors can have different outputs, when a magnet is near them, as shown in the image below:
 
 <br><img src="images/invert_non_invert.png">
 
-<br> For Trapezoidal drive the Hall combination read from the pins decides which sector follows next. Usually, these sensors are in number of three and are placed inside the motor, each sensor 120° apart from another one.
+<br> For Trapezoidal drive, the Hall combination read from the pins decides which sector follows next. Usually, these sensors are in number of three and are placed inside the motor, each sensor 120° apart from another one.
 
 <br> The Hall transitions are mapped using a state machine with six states (from ST0 up ST5) in a circular shape that repeats itself over and over. The rotation direction doesn't impact the order scrolling through the states. The order of scrolling through the states will always be ST0 -> ST1 -> ST2 -> ST3 -> ST4 -> ST5 -> ST0 and so on. The state machine implementation can be observed from the images below:
 
@@ -532,7 +532,7 @@ The driving signals update happens in an Interrupt Service Routine (ISR) every 5
 <br><img src="images/hall_ccw_sm.png">
 <br><img src="images/hall_sm_cw_ccw.png">
 
-<br> For Sinusoidal drive all three motor phases are continuously driven so there are no sectors, but the sensing algorithm is the same as in the Trapezoidal drive case. Based on the combination read from the Hall sensors the motor's rotor position can be estimated roughly every 60 electrical degrees. In this way,  the sensing and synchronization algorithms are unified for both Trapezoidal and Sinusoidal drive.
+<br> For Sinusoidal drive, all three motor phases are continuously driven so there are no sectors, but the sensing algorithm is the same as in the Trapezoidal drive case. Based on the combination read from the Hall sensors the motor's rotor position can be estimated roughly every 60 electrical degrees. In this way,  the sensing and synchronization algorithms are unified for both Trapezoidal and Sinusoidal drive.
 
 #### Sensorless Mode
 
@@ -546,9 +546,9 @@ The driving signals update happens in an Interrupt Service Routine (ISR) every 5
 
 <br>The BEMF Zero-Crosses are mapped using a state machine with eight states dictated by the sector change and the polarity of the comparator output change events. The functionality is explained and can be observed in the images below:
 
-<br>• If the Odd Sector change event happens  (S0), the comparator output should go from `0` logic to `1` logic to detect a positive ZCD. After the sector changes the state machine enters in INIT0. When the sector is changed and the motor phases is put in a floating state, the body diodes of the MOSFETS enter in conduction mode and a positive spike is induced in the motor phase, and this can interfere with the BEMF acquisition. If that spike is detected the comparator output must be ignored because it would detect a `1` logic signal, a false ZCD, meaning the C1 event happens, and the state machine enters the PRE0 state to filter the output. If another sector change is happening during the PRE0 state, than the ZCD of BEMF is coming earlier than expected (LEAD case). When the comparator output goes back to `0` logic, the state machine enters in WAIT0 state, where the real ZCD transition is waited. If another sector change is detected during the WAIT0 state, then the ZCD of BEMF is coming later than expected (LATE case). If the real ZCD is detected and another sector changed didn't happen yet the state machine moves to the END0 state, where it is waiting for another sector change.  
+<br>• If the Odd Sector change event happens  (S0), the comparator output will go from `0` logic to `1` logic to detect a positive ZCD. After the sector changes, the state machine enters in INIT0. When the sector is changed and the motor phases are put in a Floating state, the body diodes of the MOSFETS enter in Conduction mode and a positive spike is induced in the motor phase. This can interfere with the BEMF acquisition. If that spike is detected, the comparator output must be ignored because it would detect a `1` logic signal, a false ZCD, meaning the C1 event happens, and the state machine enters the PRE0 state to filter the output. If another sector change is happening during the PRE0 state, then the ZCD of BEMF is coming earlier than expected (LEAD case). When the comparator output goes back to `0` logic, the state machine enters in WAIT0 state, where the real ZCD transition is waited. If another sector change is detected during the WAIT0 state, then the ZCD of BEMF is coming later than expected (LATE case). If the real ZCD is detected and another sector changed didn't happen yet, the state machine moves to the END0 state, where it is waiting for another sector change.  
 
-<br>• If the Even Sector change event happens (S1), the comparator output should go from `1` logic to `0` logic to detect a negative ZCD. After the sector changes the state machine enters in INIT1. When the sector is changed and the motor phases is put in a floating state, the body diodes of the MOSFETS enter in conduction mode and a negative spike is induced in the motor phase, and this can interfere with the BEMF acquisition. If that spike is detected the comparator output must be ignored because it would detect a `0` logic signal, a false ZCD, meaning the C0 event happens, and the state machine enters the PRE1 state to filter the output. If another sector change is happening during the PRE1 state, than the ZCD of BEMF is coming earlier than expected (LEAD case). When the comparator output goes back to `1` logic, the state machine enters in WAIT1 state, where the real ZCD transition is waited. If another sector change is detected during the WAIT1 state, then the ZCD of BEMF is coming later than expected (LATE case). If the real ZCD is detected and another sector changed didn't happen yet the state machine moves to the END1 state, where it is waiting for another sector change.
+<br>• If the Even Sector change event happens (S1), the comparator output will go from `1` logic to `0` logic to detect a negative ZCD. After the sector changes, the state machine enters in INIT1. When the sector is changed and the motor phases are put in a Floating state, the body diodes of the MOSFETS enter in Conduction mode and a negative spike is induced in the motor phase. This can interfere with the BEMF acquisition. If that spike is detected, the comparator output must be ignored because it would detect a `0` logic signal, a false ZCD, meaning the C0 event happens, and the state machine enters the PRE1 state to filter the output. If another sector change is happening during the PRE1 state, then the ZCD of BEMF is coming earlier than expected (LEAD case). When the comparator output goes back to `1` logic, the state machine enters in WAIT1 state, where the real ZCD transition is waited. If another sector change is detected during the WAIT1 state, then the ZCD of BEMF is coming later than expected (LATE case). If the real ZCD is detected and another sector changed didn't happen yet, the state machine moves to the END1 state, where it is waiting for another sector change.
 
 <br><img src="images/bemf_cw_ccw_smdl.png">
 
@@ -558,7 +558,7 @@ The driving signals update happens in an Interrupt Service Routine (ISR) every 5
 
 ### Analog Interface Layer
 
-The Analog Layer is responsible of monitoring some of the Motor Parameters for fault protections or for providing useful information for the user at run-time. AVR EB implements this layer using the Analog-to-Digital Converter (ADC) in averaging mode. The analog parameters measured with the ADC are:
+The Analog Layer is responsible of monitoring some of the Motor Parameters for fault protections or for providing useful information for the user at run-time. AVR EB implements this layer using the ADC in Averaging mode. The analog parameters measured with the ADC are:
 
 - Voltage BUS - Provided at run-time and used for overvoltage and undervoltage fault triggering, if threshold values are reached
 - Temperature - Provided at run-time and used for overtemperature fault triggering, if a treshold is reached
@@ -578,14 +578,14 @@ Voltage Bus, Temperature, Potentiometer and Current are converted using the Sing
 
 #### Slow Acting Protection
 
-<br> It is done in software and is responsible for fault protection in case of OVP, UVP, OTEMP, average OCP and stall. The ADC samples the voltage, temperature, current, and potentiometer values and converts them from raw data into human-readable values that can be displayed during run-time. The converted values are then compared with some threshold values (limit values set by the user). If the measured values exceed the limit values, then all three motor phases are driven to a logical level `0`.
+<br> It is done in software and it is responsible for fault protection in case of OVP, UVP, OTEMP, average OCP and stall. The ADC samples the voltage, temperature, current, and potentiometer values and converts them from raw data into human-readable values that can be displayed during run-time. The converted values are then compared with some threshold values (limit values set by the user). If the measured values exceed the limit values, then all three motor phases are driven to a logical level `0`.
 <br> To drive all the output signals low, AVR EB uses the WEX in Pattern Generation mode to take control of the output pins from TCE and sets them to `0`. TCE is still running in the background while WEX takes control. If the fault condition is not valid anymore, the normal operation is restored , after the user short-presses the button, and the motor will restart with a ramp-up. When a threshold value is exceeded, the limit is temporarily modified to create a hysteresis effect. In this way, the motor will not restart spinning until the fault condition is over.
 
 <br><img src="images/fault_hysteresis.png">
 
 <br> The hysteresis type of fault applies to OVP, UVP and OTEMP. In case of average/peak OCP and stall there is no hysteresis applied.
 
-<br> A stall of the motor is detected if the current motor state is `MOTOR_RUNNING` and if a new transition from either BEMF or Hall sensors has not come for more than a time-out angle expressed in electrical degrees. The time-out angle can be configured by changing the `MC_STALL_ERROR_TOLERANCE` parameter value. If stall conditions are met, the motor is stopped, and to restore the operation short press the MPPB button.
+<br> A stall of the motor is detected if the current motor state is `MOTOR_RUNNING` and if a new transition from either BEMF or Hall sensors has not come for more than a time-out angle expressed in electrical degrees. The time-out angle can be configured by changing the `MC_STALL_ERROR_TOLERANCE` parameter value. If stall conditions are met, the motor is stopped, and to restore the operation, short press the MPPB button.
 
 <br><img src="images/stall_detection.png">
 
@@ -620,10 +620,10 @@ Below are some logic analyzer and oscilloscope captures, to have a better view a
 
 ### Sinusoidal Drive
 
-<br>Capture taken with SVPWM drive, 10 degrees phase advance. To use this type of drive select `MC_SCALE_MODE` parameter to `MC_SCALE_CENTER`.
+<br>Capture taken with SVPWM drive, 10 degrees phase advance. To use this type of drive, select `MC_SCALE_MODE` parameter to `MC_SCALE_CENTER`.
 <br><img src="images/svm.png">
 
-<br>Capture taken with Saddle drive, 10 degrees phase advance. To use this type of drive select `MC_SCALE_MODE` parameter to `MC_SCALE_BOTTOM`.
+<br>Capture taken with Saddle drive, 10 degrees phase advance. To use this type of drive, select `MC_SCALE_MODE` parameter to `MC_SCALE_BOTTOM`.
 <br><img src="images/saddle.png">
 
 ## Troubleshooting Guide
@@ -643,37 +643,37 @@ Below are some logic analyzer and oscilloscope captures, to have a better view a
 
 <br> - The struct must look like in the image below:
 <br><img src="images/program_error.png">
-<br> * Note: This is a temporary fix and it will be solved in future versions
+<br> * Note: This is a temporary fix and it will be solved in future versions.
 
 ### Scenario 2: The motor does nothing when the MPPB button is pressed
 
 <br> To fix this issue check the following steps:</br>
-<br> - Make sure the MPPB is connected to the power supply and the board is powered as mentioned in [Hardware Setup](#hardware-setup). If the MPPB board is powered, the LED for 3v3, 5V, and 12V are on.
+<br> - Make sure the MPPB is connected to the power supply and the board is powered as mentioned in [Hardware Setup](#hardware-setup). If the MPPB board is powered, the LEDs for 3v3, 5V, and 12V are on.
 <br> - Make sure the power supply voltage is at least double the value of `MC_STARTUP_VOLTAGE` and no less than 5V if the MPPB board is used, otherwise the start-up process fails and the motor will not start spinning
 <br> - Make sure the CNANO board is connected to the PC and is programmed with the `mc_demo.X` project
 <br> - Make sure that if multiple projects are open at the same time in MPLAB X IDE, the `mc_demo.X` project is set as main project, as specified in step three from [Software Setup](#software-setup). Otherwise there is a risk to program the CNANO board with the wrong project.
 
-### Scenario 3: The motor starts spinning with vibrations and stops, then red LED blinks five times
+### Scenario 3: The motor starts spinning with vibrations and stops, then the red LED blinks five times
 
 <br> To fix this issue check the following steps:</br>
-<br> - Disable `MC_SYNCHRONIZED` and `MC_SPEED_REGULATOR_EN`, and the motor will stay forever in forced commutation mode and remove any load from the motor if it is present
+<br> - Disable `MC_SYNCHRONIZED` and `MC_SPEED_REGULATOR_EN`, and the motor will stay forever in Forced Commutation mode and remove any load from the motor if it is present
 <br> - Make sure the `MC_MIN_SPEED` parameter is at least 10-15% of the nominal speed of the motor mentioned in the data sheet and reprogram the CNANO board
-<br> - If the motor is not spinning without vibrations, try to increase `MC_MIN_SPEED` to 15% of the nominal speed
-<br> - If the motor is still not spinning accordingly, increase `MC_STARTUP_VOLTAGE` parameter with increments of one volt per trial
+<br> - If the motor is not spinning without vibrations, try to increase the `MC_MIN_SPEED` to 15% of the nominal speed
+<br> - If the motor is still not spinning accordingly, increase the `MC_STARTUP_VOLTAGE` parameter with increments of one volt per trial
 <br> - Tweak `MC_STARTUP_VOLTAGE` and `MC_MIN_SPEED` until the ramp-up spins the motor without vibrations
-<br> - Connect the load back if it was removed for this troubleshoot and spin again the motor. If it spins without vibrations, than the `MC_SYNCHRONIZED` and `MC_SPEED_REGULATOR_EN` can be enabled again. If not, then try to increase the `MC_STARTUP_VOLTAGE` parameter a bit more and try again
+<br> - Connect the load back, if it was removed for this troubleshoot, and spin the motor again. If it spins without vibrations, then the `MC_SYNCHRONIZED` and `MC_SPEED_REGULATOR_EN` can be enabled again. If not, try to increase the `MC_STARTUP_VOLTAGE` parameter a bit more and try again.
 <br> - `MC_RAMP_UP_DURATION`, given in milliseconds, can also be increased, to avoid an abrupt ramp-up
 
-### Scenario 4: The motor starts, spins a few times, then stops or run eratically
+### Scenario 4: The motor starts, spins a few times, then stops or runs erratically
 
 <br> To fix this issue check the following steps:</br>
 <br> - Set the initial value for `MOTOR_PHASE_ADVANCE` to zero and program the CNANO board again
-<br> - If the motor is not spinning try to gradually increase the `MOTOR_PHASE_ADVANCE` with 5 electrical degrees starting from zero and reprogram the CNANO board until the motor starts spinning
-<br> - For some motors the `MOTOR_PHASE_ADVANCE` can be below zero if increasing the phase advance is not solving the issue, then gradually decrease the `MOTOR_PHASE_ADVANCE` with five electrical degrees starting from zero until the motor starts spininng, but this is not very common
+<br> - If the motor is not spinning, try to gradually increase the `MOTOR_PHASE_ADVANCE` with five electrical degrees starting from zero and reprogram the CNANO board until the motor starts spinning
+<br> - For some motors, the `MOTOR_PHASE_ADVANCE` can be below zero. If increasing the phase advance is not solving the issue, then gradually decrease the `MOTOR_PHASE_ADVANCE` with five electrical degrees starting from zero until the motor starts spininng, but this is not very common.
 
 ### Scenario 5: The motor is spinning, but it consumes a lot of current
 
-<br> This issue is also fixed by tunning the `MOTOR_PHASE_ADVANCE` parameter until the power consumption is minimum. `MOTOR_PHASE_ADVANCE` must be increased and decreased by 1 electrical degree and the current consumption must be observed. If the current consumption is getting smaller when `MOTOR_PHASE_ADVANCE` is increased, continue to increase it until an optimal consumption in achieved. The procedure is the same if the current consumption is getting smaller for decreasing the `MOTOR_PHASE_ADVANCE`.</br>
+<br> This issue is also fixed by tunning the `MOTOR_PHASE_ADVANCE` parameter until the power consumption is minimum. `MOTOR_PHASE_ADVANCE` must be increased and decreased by one electrical degree and the current consumption must be observed. If the current consumption is getting smaller when `MOTOR_PHASE_ADVANCE` is increased, continue to increase it until an optimal consumption in achieved. The procedure is the same if the current consumption is getting smaller for decreasing the `MOTOR_PHASE_ADVANCE`.</br>
 
 ### Scenario 6: Motor starts, then unexpectedly starts shaking, vibrating, then stops
 
@@ -682,19 +682,19 @@ Below are some logic analyzer and oscilloscope captures, to have a better view a
 <br> - Check if the power supply has dropped unexpectedly, this may cause a stall
 <br> - Check if the mechanical load on the motor shaft increased unexpectedly, this causes a stall
 
-### Scenario 7: Motor starts normally, but when turning the potentiometer it enters stall mode, then stops
+### Scenario 7: Motor starts normally, but when turning the potentiometer it enters Stall mode, then stops
 
 <br> To fix this issue check the following steps:</br>
-<br> - Check if the power supply has dropped unexpectedly, when the potentiometer is turned to left towards the minimum value, this causes a stall
+<br> - Check if the power supply has dropped unexpectedly, when the potentiometer is turned to left, towards the minimum value, this causes a stall
 <br> - Increase `MOTOR_PHASE_ADVANCE` to increase motor torque and prevent stall
 
 ### Scenario 8: Console Interface doesn't display any data
 
-<br> This is usually due to a wrong baud-rate value, or because the project has the `MC_DVRT_ENABLED` parameter enabled. Make sure the baud rate value is 460800bps, `MC_PRINTOUT_ENABLED` parameter is enabled and `MC_DVRT_ENABLED` is disabled.</br>
+<br> This is usually due to a wrong baud rate value, or because the project has the `MC_DVRT_ENABLED` parameter enabled. Make sure the baud rate value is 460800 bps, `MC_PRINTOUT_ENABLED` parameter is enabled and `MC_DVRT_ENABLED` is disabled.</br>
 
 ### Scenario 9: DVRT tool doesn't display any data
 
-<br> This is usually due to a wrong baud-rate value, or because the project has the `MC_PRINTOUT_ENABLED` parameter enabled. Make sure the baud-rate value is 460800bps, `MC_DVRT_ENABLED` parameter is enabled and `MC_PRINTOUT_ENABLED` is disabled.</br>
+<br> This is usually due to a wrong baud rate value, or because the project has the `MC_PRINTOUT_ENABLED` parameter enabled. Make sure the baud rate value is 460800 bps, `MC_DVRT_ENABLED` parameter is enabled and `MC_PRINTOUT_ENABLED` is disabled.</br>
 
 ### Scenario 10: Changes made in `mc_config.h` have no effect
 
@@ -702,7 +702,7 @@ Below are some logic analyzer and oscilloscope captures, to have a better view a
 
 ### Scenario 11: CNANO board is not recognised in MPLAB X IDE
 
-<br> After plugging and unplugging the CNANO board from PC multiple times, there is a small chance that the CNANO board is not seen anymore by the MPLAB X IDE. If that happens, try unplugging and plugging again the board. If the issue is not fixed, close and restart the MPLAB X IDE.</br>
+<br> After plugging and unplugging the CNANO board from PC multiple times, there is a small chance that the CNANO board is not seen anymore by the MPLAB X IDE. If that happens, try unplugging and plugging the board again. If the issue is not fixed, close and restart MPLAB X IDE.</br>
 
 ## Summary
 
