@@ -18,8 +18,10 @@
 - [Motor Control Software Description](#motor-control-software-description)
   - [Application Programming Interface Functions](#application-programming-interface-functions)
   - [Configurable Parameters](#configurable-parameters)
-  - [Fault Limits](#fault-limits)
+  - [Fault Limits Settings](#fault-limits-settings)
   - [Control Layer](#control-layer)
+    - [Open Loop Synchronization](#open-loop-synchronization)
+    - [Closed Loop Control](#closed-loop-control)
   - [Drive Layer](#drive-layer)
     - [Trapezoidal Drive](#trapezoidal-drive)
     - [Sinusoidal Drive](#sinusoidal-drive)
@@ -49,11 +51,11 @@
 
 ## Motor Control With AVR®
 
-- This repository contains one bare metal source code example for a Motor Control application, using the new AVR EB family of devices. Check the *Version Features* section to see all the available functionality on the current release. The approach for this application is focused on the dedicated hardware peripherals of the AVR16EB32 microcontroller (MCU), which reduce the amount of memory used and the Central Process Unit (CPU) overhead as some mathematical calculations are done in hardware by this device.
+- This repository contains one bare metal source code example for a Motor Control application, using the new AVR EB family of devices. Check the [*Release Notes*](#release-notes) section to see all the available functionality on the current release. The approach for this application is focused on the dedicated hardware peripherals of the AVR16EB32 microcontroller (MCU), which reduce the amount of memory used and the Central Process Unit (CPU) overhead as some mathematical calculations are done in hardware by this device.
 
 - AVR EB has two new peripherals, the Timer Counter type E (TCE) and a Waveform Extension (WEX), that have new hardware capabilities meant to takeover software functions usually used in motor control, as described in [Getting started with TCE and WEX](https://onlinedocs.microchip.com/oxy/GUID-8FB8D192-E8C9-4748-B991-D4D842E01591-en-US-1/index.html) and in the [AVR EB data sheet](https://www.microchip.com/en-us/product/avr16eb32#document-table).
   
-- The functionality of the application is to obtain a Trapezoidal (6-step block commutation) drive method with motor synchronization, with support for both sensored and sensorless feedback types. The focus is on Brushless Direct Current (BLDC) motors and Permanent Magnet Synchronous Motors (PMSMs).
+- The functionality of the application is to obtain a Trapezoidal (6-step block commutation) and a Sinusoidal drive method with motor synchronization, with support for both sensored and sensorless feedback types. The focus is on Brushless Direct Current (BLDC) motors and Permanent Magnet Synchronous Motors (PMSMs).
 
 - The Sensored feedback and synchronization is achieved using Hall sensors. A software algorithm is used to overcome possible faulty transitions of Hall sensors, due to noise or mechanical misalignments, and thus correctly detecting the rotor's position and synchronize the motor with the driving signals.
 
@@ -286,7 +288,7 @@ To activate it, the `MC_DVRT_ENABLED` must be set to true in [`mc_config.h`](#co
 
 <br><img src="images/play_plot.png">
 
-Capture with graphs of potentiometer in percentage (green) and speed in RPM (yellow) at run-time:
+Capture with dark theme enabled of potentiometer in percentage (green) and speed in RPM (yellow) at run-time:
 
 <br><img src="images/dvrt.png">
 
@@ -386,7 +388,7 @@ The parameters from config file used to customize the application are the follow
 
 <br> All these parameters are set to safe default values. With the initial values, the motor will spin, maybe not optimal, but it is a good starting point to start tunning for a custom application.
 
-### Fault Limits
+### Fault Limits Settings
 
 The configurable threshold values found in `mc_limits.h` file are the following:
 
@@ -425,6 +427,8 @@ The User Layer represents the application from the `main` file and it integrates
 
 <br><img src="images/fault_mc_sm.png">
 
+#### Open Loop Synchronization
+
 <br> This layer implements a rotor sensing position algorithm that can unify the two types of feedback sources (HALL or BEMF) and have the same approach and implementation. The goal of the algorithm is to keep the motor field in sync with the drive field, regardless of the type of feedback. Because the acquisition of BEMF and HALL data is affected by multiple factors like mechanical misalignment or noise, both of these feedback acquisition methods need a filtering algorithm to sense the correct transitions of sensors or BEMF Zero-Cross. The proposed algorithm takes the raw data from BEMF or HALL every complete PWM cycle. The sensing algorithm is called along with the drive update function every 50 μs.
 
 <br><img src="images/motor_handler_drive_update.png">
@@ -454,6 +458,7 @@ The User Layer represents the application from the `main` file and it integrates
 
 <br><img src="images/phase_advance.png"></br>
 
+#### Closed Loop Control
 
 <br>Closed Loop control over speed regulation can keep a certain desired value of the speed, even if load variations may appear. Speed regulation is achieved using a software PI algorithm. The algorithm takes two inputs: the desired speed and the actual speed of the motor. Based on the Proportional and Integral parts, the error between the two inputs is calculated and the PWM duty cycle amplitude of the drive signals is changed to keep the desired value of speed while the motor is running. If the amplitude is set to maximum and the value of the desired speed still cannot be reached, then a time-out can be implemented to stop the motor. (This will be available in the next version)
 
