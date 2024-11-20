@@ -26,10 +26,10 @@
 
 void         MC_Sensing_Initialize(void);
 mc_sense_t   MC_Hall_IntGet(void);
-mc_sense_t   MC_Hall_Get(void);
 mc_sense_t   MC_Bemf_IntGet(void);
-mc_sense_t   MC_Bemf_Get(void);
-void         MC_Bemf_Set(uint8_t);
+void         MC_Bemf_Set(uint8_t, uint8_t);
+mc_sense_t   MC_Sensing_Get(void);
+uint8_t     *MC_Sensing_HallTable_Get(void);
 
 #endif /* MC_SENSING_H */
 

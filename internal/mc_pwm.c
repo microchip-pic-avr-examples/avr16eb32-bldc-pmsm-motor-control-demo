@@ -24,11 +24,14 @@
 #include "mc_pwm.h"
 #include "clkctrl.h"
 #include "mc_pins.h"
+#include "mc_internal_defines.h"
 
 #ifdef __AVR16EB32__
 #include "tce0.h"
 #include "wex0.h"
+#include "tcb.h"
 #endif /* __AVR16EB32__ */
+
 
 #ifdef __AVR16EB32__
 #define _MC_PWM_PINS_SET()            do{PWM_AH_PORT.DIRSET = PWM_AH_PIN;\
@@ -50,7 +53,7 @@ static const uint8_t wex_settings[8] =
     WEX_PGMOVR0_bm | WEX_PGMOVR1_bm | WEX_PGMOVR2_bm | WEX_PGMOVR3_bm | WEX_PGMOVR4_bm | WEX_PGMOVR5_bm,    /* 0b111 */
 };
 #define _MC_PWM_PERIOD()              TCE0_PER_US_TO_TICKS(PWM_PERIOD, F_CPU, 1)
-#define _MC_PWM_PERIOD_SET()          do{TCE0_PeriodSet(_MC_PWM_PERIOD()); TCE0_Compare3Set((uint16_t)((1.05-MC_BEMF_SAMPLING_POINT) * TCE0_PER_US_TO_TICKS(PWM_PERIOD, F_CPU, 1)));}while(0)
+#define _MC_PWM_PERIOD_SET()          do{TCE0_PeriodSet(_MC_PWM_PERIOD()); TCE0_Compare3Set((uint16_t)((1.0-MC_BEMF_SAMPLING_POINT) * TCE0_PER_US_TO_TICKS(PWM_PERIOD, F_CPU, 1)));}while(0)
 #define _MC_PWM_TRAP_DCY(X)           do{stepped_data=(X); Map(MC_FP_TO_FIPu16(1.0),MC_FP_TO_FIPu16(0.0)); TCE0_CompareChannels012BufferedSet(scaled_dcy0,scaled_dcy1,scaled_dcy2); WEX0_PatternGenerationOverrideBufferSet(wex_settings[(X)&(MC_PHASE_FLOAT_A|MC_PHASE_FLOAT_B|MC_PHASE_FLOAT_C)]);}while(0)
 #define _MC_PWM_SINE_DCY(X,Y,Z)       TCE0_CompareChannels012BufferedSet((X),(Y),(Z))
 #define _MC_PWM_INIT                  MC_TCE0_Initialize
@@ -69,6 +72,7 @@ static const uint8_t wex_settings[8] =
 static mc_amplitude_t frac_amplitude;
 static mc_int_dcy_t   scaled_dcy0, scaled_dcy1, scaled_dcy2;
 static mc_stepped_t   stepped_data;
+
 
 typedef union
 {
@@ -99,7 +103,7 @@ static inline void Map(mc_int_dcy_t top, mc_int_dcy_t bot)
     else                                   scaled_dcy2 = 0;
 }
 
-/*static*/ void Scale(void)
+static inline void Scale(void)
 {
     mc_int_dcy_t amp, bias, top, bot;
     shifter_t temp;    
@@ -187,7 +191,7 @@ void MC_TCE0_Initialize(void)
 #if MC_SCALE_MODE == MC_SCALE_BOTTOM
     TCE0_ScaleModeSet(TCE_SCALEMODE_BOTTOM_gc);
 #endif /* MC_SCALE_MODE == MC_SCALE_BOTTOM */
-    TCE0_Interrupts_Enable(TCE_OVF_bm | TCE_CMP3_bm);  
+    TCE0_Interrupts_Enable(TCE_CMP3_bm);  
 }
 
 void MC_WEX0_Initialize(void)
@@ -211,6 +215,7 @@ void MC_WEX0_Initialize(void)
 void MC_PWM_ForceStop(void)
 {
     _MC_PWM_OUTPUT_DISABLE();
+    _MC_PWM_SINE_DCY(0, 0, 0);
 }
 
 void MC_PWM_FaultRecovery(void)
@@ -220,6 +225,7 @@ void MC_PWM_FaultRecovery(void)
 
 void MC_PWM_ForceStart(void)
 {
+    _MC_PWM_SINE_DCY(0, 0, 0);
     _MC_PWM_OUTPUT_ENABLE();
 }
 
@@ -243,12 +249,12 @@ void MC_PWM_Stop(void)
     _MC_PWM_STOP();
 }
 
-void MC_PWM_DriveHandlerRegister(mc_handler_t cb)
+void MC_PWM_Handler2Register(mc_handler_t cb)
 {
     _MC_PWM_DRIVE_REGISTER(cb);
 }
 
-void MC_PWM_SenseHandlerRegister(mc_handler_t cb)
+void MC_PWM_HandlerRegister(mc_handler_t cb)
 {
     _MC_PWM_SENSE_REGISTER(cb);
 }

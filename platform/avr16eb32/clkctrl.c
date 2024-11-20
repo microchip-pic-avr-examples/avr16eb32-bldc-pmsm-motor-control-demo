@@ -15,6 +15,9 @@ FUSES =
   .SYSCFG0 = CRCSEL_CRC16_gc | CRCSRC_NOCRC_gc | RSTPINCFG_NONE_gc | UPDIPINCFG_UPDI_gc,
   .SYSCFG1 = SUT_64MS_gc,
   .WDTCFG = PERIOD_OFF_gc | WINDOW_OFF_gc,
+//  .reserved_1[0] = 0xFF,
+//  .reserved_1[1] = 0xFF,
+//  .reserved_2[0] = 0xFF
 };
 
 #if   (F_CPU==24000000UL) || (F_CPU==24000000)

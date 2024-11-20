@@ -39,36 +39,60 @@ typedef union
 {
     struct
     {
-        uint8_t L;
-        uint8_t H;
+        uint8_t L8;
+        uint8_t H8;
     };
-    uint16_t W;
+    uint16_t W16;
 } split16_t;
 
 typedef union
 {
     struct
     {
-        uint16_t L;
-        uint16_t H;
+        uint8_t  dummy0;
+        uint16_t M16;
+        uint8_t  dummy1;
     };
-    uint32_t W;
+    struct
+    {
+        uint8_t  B0;
+        uint8_t  B1;
+        uint8_t  B2;
+        uint8_t  B3;
+    };
+    struct
+    {
+        uint16_t L16;
+        uint16_t H16;
+    };
+    uint32_t W32;
 } split32_t;
 
 typedef union
 {
     struct
     {
-        uint16_t  L16;
-        uint16_t  H16;
+        uint8_t  B0;
+        uint8_t  B1;
+        uint8_t  B2;
     };
-    uint32_t W32;   
-} acc_u32_t;
+    struct
+    {
+        uint8_t  L8;
+        uint16_t H16;
+    };
+    struct
+    {
+        uint16_t dummy;
+        uint8_t  H8;
+    };
+    uint32_t W24: 24;
+} mc_24_t;
 
 typedef struct
 { 
     uint16_t step_counter;
-    acc_u32_t accumulator; 
+    split32_t accumulator;
     uint32_t step_size; 
     uint16_t end_value; 
     bool step_sign;
@@ -115,6 +139,7 @@ typedef enum
     MC_FAULT_OVER_VOLTAGE_EVENT,
     MC_FAULT_OVER_VOLTAGE_RESTORE,
     MC_FAULT_STALL_DETECTION_EVENT,
+    MC_FAULT_HALL_ERROR_EVENT,
     MC_FAULT_OVER_CURRENT_EVENT,      
     MC_FAULT_HIGH_TEMPERATURE_EVENT,
     MC_FAULT_HIGH_TEMPERATURE_RESTORE,
@@ -127,11 +152,21 @@ typedef union
 {
     struct
     {
-        uint8_t id    :4;
-        uint8_t state :4;
+        uint8_t id    :5;
+        uint8_t state :3;
     };
     uint8_t byte;
 } mc_sense_t;
+
+typedef struct
+{
+    mc_angle_t  stator;
+    mc_angle_t  rotor;
+    mc_sense_t  sensor;
+} mc_hall_prof_t;
+
+//typedef bool (*mc_hallprof_pf_t)(uint8_t, mc_hall_prof_t *, int32_t *, mc_angle_t *);
+
 
 
 /* floating point range is 0.0 ... 1.0 when unsigned , UQ1.15 and UQ1.7  */

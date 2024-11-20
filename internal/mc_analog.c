@@ -25,9 +25,10 @@
 #include "mc_internal_defines.h"
 #include "mc_pins.h"
 #include "adc0.h"
-
 #include "mc_control_analog.h"
 #include "mc_control_fault.h"
+
+#define MC_ANALOG_FILTER                true
 
 
 static void ADC_Pins_Init(void)
@@ -58,28 +59,32 @@ static void ADC_Pins_Init(void)
     CRT_REF_PORT.CRT_REF_CTRL &= ~PORT_PULLUPEN_bm; 
 }
 
-#define _MC_ANALOG_TEMPERATURE()    do{ADC0_SetMuxSingleEnded(ADC_MUXPOS_GND_gc); _delay_us(1);\
+#define _MC_ANALOG_TEMPERATURE()    do{ADC0_SetMuxSingleEnded(ADC_MUXPOS_GND_gc);\
+                                       measurement_id = AID_TEMPERATURE;\
+                                       _delay_us(1);\
                                        ADC0_SetMuxSingleEnded(TEMP_ADC_PIN);\
                                        ADC0_StartSingleEndedConversion();\
                                       }while(0)
-#define _MC_ANALOG_CURRENT()        do{ADC0_SetMuxDifferential(ADC_MUXPOS_GND_gc,   ADC_MUXNEG_GND_gc); _delay_us(1);\
+#define _MC_ANALOG_CURRENT()        do{ADC0_SetMuxDifferential(ADC_MUXPOS_GND_gc,   ADC_MUXNEG_GND_gc);\
+                                       measurement_id = AID_CURRENT;\
+                                       _delay_us(1);\
                                        ADC0_SetMuxDifferential(CRT_SNS_ADC_PIN,  CRT_REF_ADC_PIN);\
                                        ADC0_StartDiffConversion();\
                                       }while(0)
-#define _MC_ANALOG_VOLTAGE()        do{ADC0_SetMuxSingleEnded(ADC_MUXPOS_GND_gc); _delay_us(1);\
+#define _MC_ANALOG_VOLTAGE()        do{ADC0_SetMuxSingleEnded(ADC_MUXPOS_GND_gc);\
+                                       measurement_id = AID_VOLTAGE;\
+                                       _delay_us(1);\
                                        ADC0_SetMuxSingleEnded(VBUS_ADC_PIN);\
                                        ADC0_StartSingleEndedConversion();\
                                       }while(0)
-#define _MC_ANALOG_POTENTIOMETER()  do{ADC0_SetMuxSingleEnded(ADC_MUXPOS_GND_gc); _delay_us(1);\
+#define _MC_ANALOG_POTENTIOMETER()  do{ADC0_SetMuxSingleEnded(ADC_MUXPOS_GND_gc);\
+                                       measurement_id = AID_POTENTIOMETER;\
+                                       _delay_us(1);\
                                        ADC0_SetMuxSingleEnded(POT_ADC_PIN);\
                                        ADC0_StartSingleEndedConversion();\
                                       }while(0)
-#define _MC_ANALOG_BEMF_A()         do{ADC0_SetMuxSingleEnded(ADC_MUXPOS_GND_gc); _delay_us(1);\
-                                       ADC0_SetMuxSingleEnded(PHASE_A_ADC_PIN);\
-                                       ADC0_StartSingleEndedConversion();\
-                                      }while(0)
 
-#define _MC_ANALOG_INIT()           do{ADC_Pins_Init(); ADC0_Initialize(); }while(0)
+#define _MC_ANALOG_INIT()           do{ADC_Pins_Init(); ADC0_Initialize();}while(0)
 #define _MC_ANALOG_RESRDY()         ADC0_IsConversionDone()
 #define _MC_ANALOG_GET_RES()        ADC0_GetConversionResult()
 
@@ -87,9 +92,14 @@ static mc_analog_id_t measurement_id;
 static volatile mc_analog_data_t adc_filters[AID_MAX];
 
 static inline void             FilterClear(mc_analog_id_t id)                       {adc_filters[id].W = 0;}
+static inline uint16_t         FilterRead (mc_analog_id_t id)                       {return adc_filters[id].H;}
+#if MC_ANALOG_FILTER==true
 static inline void             FilterUnsigned(mc_analog_id_t id, adc_result_t data) {mc_analog_data_t x = adc_filters[id]; uint32_t y =           x.W;  uint16_t z =           x.H;  adc_filters[id].W =            y - z + (uint16_t)data;}
 static inline void             FilterSigned(mc_analog_id_t id,   adc_result_t data) {mc_analog_data_t x = adc_filters[id]; int32_t  y = (int32_t)(x.W);  int16_t z = (int16_t)(x.H); adc_filters[id].W = (uint32_t)(y - z +  (int16_t)data);}
-static inline uint16_t         FilterRead (mc_analog_id_t id)                       {return adc_filters[id].H;}
+#else  /* MC_ANALOG_FILTER */
+static inline void             FilterUnsigned(mc_analog_id_t id, adc_result_t data) {adc_filters[id].H = data;}
+static inline void             FilterSigned(mc_analog_id_t id,   adc_result_t data) {adc_filters[id].H = data;}
+#endif /* MC_ANALOG_FILTER */
 
 
 void MC_Analog_Initialize(void)
@@ -99,7 +109,7 @@ void MC_Analog_Initialize(void)
     FilterClear(AID_VOLTAGE);
     FilterClear(AID_TEMPERATURE);
     FilterClear(AID_POTENTIOMETER);
-    measurement_id = AID_CURRENT;
+    
     _MC_ANALOG_CURRENT();
 }
 
@@ -113,10 +123,10 @@ void MC_Analog_Run(void)
 
         switch(measurement_id)
         {   
-            case AID_VOLTAGE:       FilterUnsigned(measurement_id, res); measurement_id = AID_POTENTIOMETER;   _MC_ANALOG_POTENTIOMETER();  break;
-            case AID_CURRENT:       FilterSigned(measurement_id, res);   measurement_id = AID_VOLTAGE;         _MC_ANALOG_VOLTAGE();        break;                                
-            case AID_TEMPERATURE:   FilterUnsigned(measurement_id, res); measurement_id = AID_CURRENT;         _MC_ANALOG_CURRENT();        break;
-            case AID_POTENTIOMETER: FilterUnsigned(measurement_id, res); measurement_id = AID_TEMPERATURE;     _MC_ANALOG_TEMPERATURE();    break;
+            case AID_CURRENT:       FilterSigned(measurement_id, res);   _MC_ANALOG_VOLTAGE();        break;                                
+            case AID_VOLTAGE:       FilterUnsigned(measurement_id, res); _MC_ANALOG_POTENTIOMETER();  break;
+            case AID_POTENTIOMETER: FilterUnsigned(measurement_id, res); _MC_ANALOG_TEMPERATURE();    break;
+            case AID_TEMPERATURE:   FilterUnsigned(measurement_id, res); _MC_ANALOG_CURRENT();        break;
             default: break;
         }
         MC_Fault_LimitsCheck(prev_id, FilterRead(prev_id));
@@ -132,5 +142,3 @@ uint16_t MC_Analog_Read(mc_analog_id_t index)
     }
     return retVal;
 }
-
-

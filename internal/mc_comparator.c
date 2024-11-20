@@ -24,10 +24,9 @@
 #include "mc_pins.h"
 #include "mc_comparator.h"
 #include "ac.h"
-
+#include "evsys.h"
 
 #ifdef __AVR16EB32__
-#include "evsys.h"
 #include "wex0.h"
 #endif /* __AVR16EB32__ */
 
@@ -51,7 +50,7 @@ void AC_Pins_Init(void)
 }
 
 #ifdef __AVR16EB32__ // Hardware Implementation with specific calls for AVR-EB 
-#define _MC_COMP_INIT()                 AC0_Initialize()
+#define _MC_COMP_INIT()                 do{AC_Pins_Init(); AC0_Initialize();}while(0)
 #define _MC_COMP_FAULT_INIT()           do{AC_Pins_Init(); AC1_Initialize(); AC1_MUXSET(CRT_FAULT_AC_PIN | AC_MUXNEG_DACREF_gc | AC_INITVAL_LOW_gc); AC1_DACRefValue(255); _delay_us(10); Evsys_Init();}while(0)
 #define _MC_COMP_MUX_SET                AC0_MUXPOS
 #define _MC_COMP_INPUT_GET              AC0_GetComparatorState
@@ -61,6 +60,7 @@ void AC_Pins_Init(void)
 #define _MC_COMP_INT_ENABLE             WEX0_FaultEnable
 #define _MC_COMP_INT_DISABLE            WEX0_FaultDisable
 #endif /* __AVR16EB32__ */
+
 
 
 void MC_Comparator_Initialize(void)

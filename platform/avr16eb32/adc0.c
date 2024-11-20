@@ -63,7 +63,7 @@ int8_t ADC0_Initialize(void)
     ADC0.DBGCTRL = 0x0;
 
     //DIFF enabled; MODE BURST; START Start a conversion immediately. This will be set back to STOP when the first conversion is done, unless Free-Running mode is enabled; 
-    ADC0.COMMAND = 0x00;
+    ADC0.COMMAND = 0x0;
 
     //RESOVR disabled; RESRDY disabled; SAMPOVR disabled; SAMPRDY disabled; TRIGOVR disabled; WCMP disabled; 
     ADC0.INTCTRL = 0x0;
@@ -149,6 +149,16 @@ void ADC0_StartSingleEndedConversion(void)
 void ADC0_StartDiffConversion(void)
 {
     ADC0.COMMAND = ADC_MODE_BURST_SCALING_gc | ADC_START_IMMEDIATE_gc | ADC_DIFF_bm;
+}
+
+void ADC0_DiffMode(void)
+{
+    ADC0.COMMAND |= ADC_DIFF_bm;
+}
+
+void ADC0_SingleMode(void)
+{
+    ADC0.COMMAND &= ~ADC_DIFF_bm;
 }
 
 void ADC0_StopConversion(void)

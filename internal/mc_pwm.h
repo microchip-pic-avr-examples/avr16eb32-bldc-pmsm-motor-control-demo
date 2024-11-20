@@ -25,8 +25,19 @@
 #include "mc_internal_types.h"
 #include "mc_config.h"
 
+#define MC_SCALE_CENTER                 (1)
+#define MC_SCALE_BOTTOM                 (2)
+
+/* possible values:  MC_SCALE_CENTER, MC_SCALE_BOTTOM  */
+#define MC_SCALE_MODE                   MC_SCALE_BOTTOM
+
+
 #if MC_DRIVE_MODE == MC_CONTINUOUS_MODE
-#define MC_BEMF_SAMPLING_POINT          0.11
+
+#ifdef __AVR16EB32__
+#define MC_BEMF_SAMPLING_POINT          0.03
+#endif /* __AVR16EB32__ */
+
 #endif /* MC_DRIVE_MODE == MC_CONTINUOUS_MODE */
 
 #if MC_DRIVE_MODE == MC_STEPPED_MODE
@@ -42,8 +53,7 @@
 void MC_PWM_Initialize(void);
 void MC_PWM_Start(void);
 void MC_PWM_Stop(void);
-void MC_PWM_DriveHandlerRegister(mc_handler_t);
-void MC_PWM_SenseHandlerRegister(mc_handler_t);
+void MC_PWM_HandlerRegister(mc_handler_t);
 void MC_PWM_ContinuousScale(mc_fip_dcy_t, mc_fip_dcy_t, mc_fip_dcy_t);
 void MC_PWM_SteppedScale(mc_stepped_t);
 void MC_PWM_AmplitudeSet(mc_amplitude_t);

@@ -26,8 +26,9 @@
 #define MC_STEPPED_MODE                 (2)
 #define MC_SENSORED_MODE                (3)
 #define MC_SENSORLESS_MODE              (4)
-#define MC_SCALE_CENTER                 (5)
-#define MC_SCALE_BOTTOM                 (6)
+#define MC_WAVE_SINE                    (5)
+#define MC_WAVE_SVM                     (6)
+#define MC_WAVE_SADDLE                  (7)
 
 /* possible values:  MC_SENSORED_MODE, MC_SENSORLESS_MODE  */
 #define MC_CONTROL_MODE                 MC_SENSORLESS_MODE
@@ -35,29 +36,31 @@
 /* possible values:  MC_CONTINUOUS_MODE, MC_STEPPED_MODE  */
 #define MC_DRIVE_MODE                   MC_STEPPED_MODE
 
-/* possible values:  MC_SCALE_CENTER, MC_SCALE_BOTTOM  */
-#define MC_SCALE_MODE                   MC_SCALE_BOTTOM
+/* possible values:  MC_WAVE_SINE, MC_WAVE_SVM, MC_WAVE_SADDLE */
+#define MC_WAVE_PROFILE                 MC_WAVE_SADDLE
+
 
 /* motor specific settings */
-#define MOTOR_HALL_DEVIATION            (0.00)   /* degrees */
-#define MOTOR_HALL_INVERTED             true
-#define MOTOR_PHASE_ADVANCE             (15.00)  /* degrees */
+#define MOTOR_PHASE_ADVANCE             (15.0)   /* degrees */
 #define MC_MOTOR_PAIR_POLES             (4)      /* pole pairs */
-#define MC_MIN_SPEED                    (400)    /* RPM - minimum speed */
+#define MC_MOTOR_PHASE_PHASE_RESISTANCE (0.4)    /* ohm */
+#define MC_MOTOR_KV                     (0.007)  /* volt/rpm */
 #define MC_RAMP_UP_DURATION             (1000)   /* milliseconds */
-#define MC_RAMP_DOWN_DURATION           (1000)   /* milliseconds */
-#define MC_STARTUP_VOLTAGE              (1.0)    /* V peak */
+#define MC_RAMP_DOWN_DURATION           (0)      /* milliseconds */
+#define MC_STARTUP_CURRENT              (2.5)    /* initial current amplitude [amperes] */
+#define MC_STARTUP_SPEED                (400)    /* switchover speed [rpm] */
 
 /* PWM drive settings */
-#define PWM_DTH                         (100)            /* nanoseconds */
-#define PWM_DTL                         (100)            /* nanoseconds */  
-#define PWM_PERIOD                      (50)             /* microseconds */
+/* possible values:  15000 - 45000 Hz */
+#define PWM_FREQUENCY                   (20000)  /* Hz */
+#define PWM_DTH                         (100)    /* nanoseconds */
+#define PWM_DTL                         (100)    /* nanoseconds */
 
 /* board specific settings */
 #define MC_SHUNT_RESISTANCE             (0.01)   /* resistance in Ohm of the current shunt */
-#define MC_CURR_SENSOR_GAIN             (7.5)
+#define MC_CURR_AMPLIFIER_GAIN          (7.5)
 #define MC_VBUS_DIVIDER                 (16.0)
-#define MC_VOLTAGE_REFFERENCE           (3.3)
+#define MC_ADC_REFERENCE                (3.3)    /* volt */
 #define MC_TEMP_K1                      (400.0)  /* mV - output voltage at 0 *C  */
 #define MC_TEMP_K2                      (19.53)  /* mV / *C   */
 
@@ -67,11 +70,11 @@
 #define MC_PRINTOUT_REFRESH_INTERVAL    (1000)   /* milliseconds */
 
 /* control functionality settings */
-#define MC_STALL_EVENTS_THRESHOLD       (50)   /* number of phase errors before throwing a stall error, MAX 255 */
-#define MC_STALL_ERROR_TOLERANCE        (60.0) /* angle error in degrees that conducts to a stall condition */
-#define MC_SPEED_REGULATOR_EN           false  /* enables a basic speed regulator, not tunable */
-#define MC_SYNCHRONIZED                 true   /* this enables the synchronization between stator and rotor, should be always enabled */
-#define MC_FAULT_ENABLED                true   /* this enables the fault signalling and emergency stop, should be always enabled */
+#define MC_SPEED_REGULATOR_EN           true     /* enables a basic speed regulator, not tunable */
+#define MC_SPEED_REGULATOR_MIN          (0500.0) /* min speed = pot min */
+#define MC_SPEED_REGULATOR_MAX          (3500.0) /* max speed = pot max */
+#define MC_SYNCHRONIZED                 true     /* this enables the synchronization between stator and rotor, should be always enabled */
+#define MC_FAULT_ENABLED                true     /* this enables the fault signalling and emergency stop, should be always enabled */
 
 
 #endif	/* MC_CONFIG_H */

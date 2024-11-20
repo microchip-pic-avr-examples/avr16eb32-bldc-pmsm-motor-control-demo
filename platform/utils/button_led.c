@@ -21,11 +21,14 @@
 
 #include "mc_pins.h"
 #include "button_led.h"
-
+#include <stdbool.h>
 
 #define LED_LOW(PORT, PIN)      PORT.OUTCLR = PIN
 #define LED_HIGH(PORT, PIN)     PORT.OUTSET = PIN
+#define LED_TOGGLE(PORT, PIN)   PORT.OUTTGL = PIN
 #define BUTTON_READ(PORT, PIN)  (((PORT.IN & PIN) == 0) ? true:false)
+
+#define LED_BLINK_NUMBER(X)     ((X) * LED_BLINK_DURATION * 2)
 
 void ButtonLedInit(void)
 {
@@ -59,11 +62,36 @@ button_state_t ButtonGet(void)
     return retVal;
 }
 
-
-/* pass 'true' to turn on the LED */
-void LedControl(bool state)
+/* pass LED_ON, LED_OFF or LED_BLINK */
+void LedControl(led_ctrl_t state)
 {
-    if(state == true) LED_LOW (LED_PORT, LED_PIN);
-    else              LED_HIGH(LED_PORT, LED_PIN);
+    static uint8_t  toggle_counter = 0;
+    static uint16_t blinks_counter = LED_BLINK_NUMBER(LED_FAULT_BLINKS);
+    static bool fault_flag = false;
+    if(state == LED_BLINK)  fault_flag = true;
+    if(fault_flag == true)
+    {
+        if(blinks_counter > 0)
+        {
+            if(toggle_counter == LED_BLINK_DURATION - 1)   
+            {
+                LED_TOGGLE(LED_PORT, LED_PIN);
+                toggle_counter = 0;
+            }
+            else toggle_counter ++;
+            blinks_counter --;
+        }
+        else
+        {
+            fault_flag = false;
+            blinks_counter = LED_BLINK_NUMBER(LED_FAULT_BLINKS);
+            toggle_counter = 0;
+            LED_TOGGLE(LED_PORT, LED_PIN);
+        }
+    }
+    else
+    {
+        if(state == LED_ON)    LED_LOW (LED_PORT, LED_PIN); 
+        if(state == LED_OFF)   LED_HIGH(LED_PORT, LED_PIN);   
+    }
 }
-

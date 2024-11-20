@@ -47,12 +47,23 @@
 #define MC_CONTROL_H
 
 #include "mc_public_types.h"
+#include "mc_config.h"
 
-#define MC_F_SAMPLING                        (1000000.0 / (float)PWM_PERIOD)
+#if PWM_FREQUENCY > 20000UL
+#define HIGH_FREQUENCY                      true
+#define MC_F_SAMPLING                       (PWM_FREQUENCY / 2.0)
+#else  /* PWM_FREQUENCY */
+#define HIGH_FREQUENCY                      false
+#define MC_F_SAMPLING                       PWM_FREQUENCY
+#endif /* PWM_FREQUENCY */
 
 /* these macros must not be called with variable arguments within interrupt context */
 #define MC_RPM_TO_MCSPEED(RPM)               (mc_speed_t)(((float)(RPM) * 65536.0 * (float)(MC_MOTOR_PAIR_POLES)) / ((float)(MC_F_SAMPLING) * 60.0) + 0.5)
-#define MC_MCSPEED_TO_RPM(MCSPEED)           (float)(MC_F_SAMPLING) * (float)(MCSPEED) * 60.0 / ( 65536.0 * (float)(MC_MOTOR_PAIR_POLES) )
+#define MC_MCSPEED_TO_RPM(MCSPEED)           (float)(MC_F_SAMPLING) * (float)(MCSPEED) * 60.0 / (65536.0 * (float)(MC_MOTOR_PAIR_POLES))
+
+/* these macros must not be called with variable arguments within interrupt context */
+#define MC_HZ_TO_MCSPEED(HZ)                 (mc_speed_t)(((float)(HZ) * 65536.0) / ((float)(MC_F_SAMPLING)) + 0.5)
+#define MC_MCSPEED_TO_HZ(MCSPEED)            (float)(MC_F_SAMPLING) * (float)(MCSPEED) / 65536.0 
 
 /**
  * @ingroup mclib
@@ -202,9 +213,13 @@ mc_status_t MC_Control_StatusGet(void);
  */
 void MC_Control_StartStop(mc_direction_t dir);
 
-#define MC_DELAY_MS    MC_Control_DelayMs 
+#define MC_DELAY_MS    MC_Control_DelayMs
 
+#if MC_CONTROL_MODE == MC_SENSORED_MODE
+mc_hall_error_t MC_Control_HallError_Get(void);
+#else /* MC_CONTROL_MODE == MC_SENSORED_MODE */
+#define MC_Control_HallError_Get() 0
+#endif /* MC_CONTROL_MODE == MC_SENSORED_MODE */
 
 #endif /*  MC_CONTROL_H */
-
 

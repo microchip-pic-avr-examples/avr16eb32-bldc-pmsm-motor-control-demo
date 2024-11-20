@@ -21,4 +21,7 @@
 # backup files
 /**/*.bak
 
+# inx files
+/**/*.inx
+
 

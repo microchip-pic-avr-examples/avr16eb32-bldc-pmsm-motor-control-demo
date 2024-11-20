@@ -268,4 +268,8 @@ void ADC0_ResultReadyCallbackRegister(adc_irq_cb_t callback);
  */
 void ADC0_ErrorCallbackRegister(adc_irq_cb_t callback);
 
+
+void ADC0_SingleMode(void);
+void ADC0_DiffMode(void);
+
 #endif //ADC0_H

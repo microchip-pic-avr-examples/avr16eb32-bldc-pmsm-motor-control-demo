@@ -22,10 +22,10 @@
 #ifndef BUTTON_LED_H
 #define BUTTON_LED_H
 
-#include <stdbool.h>
-
-#define BUTTON_TIME_STEP       50 // milliseconds
-#define BUTTON_TIME_LONG       (1500 / BUTTON_TIME_STEP) // 1.5 s timeout
+#define BUTTON_LED_TIME_STEP   (1)                            /* milliseconds */
+#define BUTTON_TIME_LONG       (1500 / BUTTON_LED_TIME_STEP)  /* 1.5 s timeout */
+#define LED_BLINK_DURATION     (200  / BUTTON_LED_TIME_STEP)  /* 0.2 s blink period */
+#define LED_FAULT_BLINKS       (5)                            /* number of blinks */
 
 typedef enum
 {
@@ -34,11 +34,18 @@ typedef enum
     BUTTON_LONG_PRESS
 } button_state_t;
 
+typedef enum
+{
+    LED_ON,
+    LED_OFF,
+    LED_BLINK
+} led_ctrl_t;
+
 void           ButtonLedInit(void);
 /* this has to be called approximately every 'BUTTON_TIME_STEP' ms */
 button_state_t ButtonGet(void);
 
-/* true LED on, false LED off */
-void LedControl(bool);
+/* LED on, LED off or LED blink */
+void LedControl(led_ctrl_t);
 
 #endif /* BUTTON_LED_H */

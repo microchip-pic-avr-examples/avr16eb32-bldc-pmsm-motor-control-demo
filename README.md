@@ -2,7 +2,7 @@
 
 <h2> Table of Contents </h2>
 
-- [Motor Control With AVR®](#motor-control-with-avr®)
+- [Motor Control With AVR®](#motor-control-with-avr)
 - [Release Notes](#release-notes)
 - [Related Documentation](#related-documentation)
 - [Software Used](#software-used)
@@ -12,6 +12,7 @@
   - [Software Setup](#software-setup)
   - [Predefined Config Settings](#predefined-config-settings)
 - [Application Usage](#application-usage)
+  - [Let's spin the motor](#lets-spin-the-motor)
   - [Basic Functionality](#basic-functionality)
   - [Console Interface](#console-interface)
   - [DVRT Tool Interface](#dvrt-tool-interface)
@@ -25,7 +26,7 @@
   - [Drive Layer](#drive-layer)
     - [Trapezoidal Drive](#trapezoidal-drive)
     - [Sinusoidal Drive](#sinusoidal-drive)
-  - [Sense Layer](#sense-layer)
+  - [Feedback Sensing Layer](#feedback-sensing-layer)
     - [Sensored Mode](#sensored-mode)
     - [Sensorless Mode](#sensorless-mode)
   - [Analog Interface Layer](#analog-interface-layer)
@@ -47,11 +48,12 @@
   - [Scenario 9: DVRT tool doesn't display any data](#scenario-9-dvrt-tool-doesnt-display-any-data)
   - [Scenario 10: Changes made in `mc_config.h` have no effect](#scenario-10-changes-made-in-mc_configh-have-no-effect)
   - [Scenario 11: CNANO board is not recognised in MPLAB X IDE](#scenario-11-cnano-board-is-not-recognised-in-mplab-x-ide)
+  - [Scenario 12: Hall scan process fails](#scenario-12-hall-scan-process-fails)
 - [Summary](#summary)
 
 ## Motor Control With AVR®
 
-- This repository contains one bare metal source code example for a Motor Control application, using the new AVR EB family of devices. Check the [*Release Notes*](#release-notes) section to see all the available functionality on the current release. The approach for this application is focused on the dedicated hardware peripherals of the AVR16EB32 microcontroller (MCU), which reduce the amount of memory used and the Central Process Unit (CPU) overhead as some mathematical calculations are done in hardware by this device.
+- This repository contains one bare metal source code example for a Motor Control application supporting Sinusoidal Sensored, Trapezoidal Sensored and Trapezoidal Sensorless control, using the new AVR EB family of devices. Check the [*Release Notes*](#release-notes) section to see all the available functionality on the current release. The approach for this application is focused on the dedicated hardware peripherals of the AVR16EB32 microcontroller (MCU), which reduce the amount of memory used and the Central Process Unit (CPU) overhead as some mathematical calculations are done in hardware by this device.
 
 - AVR EB has two new peripherals, the Timer Counter type E (TCE) and a Waveform Extension (WEX), that have new hardware capabilities meant to takeover software functions usually used in motor control, as described in [Getting started with TCE and WEX](https://onlinedocs.microchip.com/oxy/GUID-8FB8D192-E8C9-4748-B991-D4D842E01591-en-US-1/index.html) and in the [AVR EB data sheet](https://www.microchip.com/en-us/product/avr16eb32#document-table).
   
@@ -63,11 +65,11 @@
 
 ## Release Notes
 
-Current version 1.1.1 features:
+Current version 1.2.0 features:
 
 - Motor specification in configuration file
 - Trapezoidal drive
-- Sensored Sinusoidal drive (Space Vector Pulse-Width Modulation (SVPWM) profile, Saddle profile)
+- Sensored Sinusoidal drive (Space Vector Pulse-Width Modulation (SVPWM) profile, Saddle profile, Pure sinusoidal)
 - Hall Sensor feedback support
 - BEMF sensing
 - Motor–Drive (Rotor-Stator) synchronization (Open loop)
@@ -75,13 +77,15 @@ Current version 1.1.1 features:
 - Start and stop ramps
 - MPLAB® Data Visualizer Run Time (DVRT) communication support for plotting parameters in real time
 - Proportional-Integral (PI) algorithm with fixed parameters for Closed Loop control over speed regulation
-- Fault support for Hardware Peak Overcurrent Protection (Peak OCP) and Software Average Overcurrent Protection (Avg OCP), Overvoltage Protection (OVP), Undervoltage Protection (UVP), Overtemperature Protection (OTEMP), and Stall Detection
+- Fault support for Hardware Peak Overcurrent Protection (Peak OCP) and Software Average Overcurrent Protection (Avg OCP), Overvoltage Protection (OVP), Undervoltage Protection (UVP), Overtemperature Protection (OTEMP), Stall Detection and Hall sensor disconnection
 - Current, Voltage Bus, Temperature and Potentiometer analog measurements at run-time
+- Variable switching frequency from 15 kHz to 45 kHz
+- Low speed Sensored control (5% of the motor's nominal speed)
+- Hall sensors autodetection algorithm at startup
 
 Known issues and future improvements:
 
-- Sinusoidal drive harmonic distortion in light load condition
-- Stall detection doesn't work all the time in Sensorless mode
+- Sinusoidal drive harmonic current distortion in light load condition
 - Sinusoidal sensorless drive
 - Configurable (PI) algorithm for Closed Loop control over speed regulation
 - Profiler tool for motor self-commissioning
@@ -97,8 +101,8 @@ More details and code examples on the AVR16EB32 can be found at the following li
 ## Software Used
 
 - [MPLAB® X IDE v6.20 or newer](https://www.microchip.com/en-us/tools-resources/develop/mplab-x-ide?utm_source=GitHub&utm_medium=TextLink&utm_campaign=MCU8_AVR-EB&utm_content=avr16eb32-bldc-pmsm-motor-control-library-github&utm_bu=MCU08)
-- [AVR-Ex DFP-2.9.197 or newer Device Pack](https://packs.download.microchip.com/)
-- [MPLAB® XC8 compiler v2.46](https://www.microchip.com/en-us/tools-resources/develop/mplab-xc-compilers?utm_source=GitHub&utm_medium=TextLink&utm_campaign=MCU8_AVR-EB&utm_content=avr16eb32-bldc-pmsm-motor-control-library-github&utm_bu=MCU08)
+- [AVR-Ex DFP-2.10.205 or newer Device Pack](https://packs.download.microchip.com/)
+- [MPLAB® XC8 compiler v2.50](https://www.microchip.com/en-us/tools-resources/develop/mplab-xc-compilers?utm_source=GitHub&utm_medium=TextLink&utm_campaign=MCU8_AVR-EB&utm_content=avr16eb32-bldc-pmsm-motor-control-library-github&utm_bu=MCU08)
 
 ## Hardware Used
 
@@ -119,17 +123,12 @@ The AVR16EB32 Curiosity Nano Development board is used along with the MPPB, AVR 
 1. Plug in the AVR16EB32 CNANO board in the connector present on the MPPB Adaptor board.
 2. Plug in the MPPB Adaptor board to the MPPB board.
 3. Connect the Voltage power supply wires to the V_SUPPLY conector from the MPPB.
-4. Connect motor phase wires to the PHASE connector from MPPB in this order: 
-    - Motor PHASE A -> MPPB PHASE A
-    - Motor PHASE B -> MPPB PHASE B
-    - Motor PHASE C -> MPPB PHASE C
-5. If Sensored control is preferred, connect motor Hall wires to the HALL SENSOR connector from the MPPB in this order: 
-    - Motor HALL A -> MPPB HALL A
-    - Motor HALL B -> MPPB HALL B
-    - Motor HALL C -> MPPB HALL C.
+4. Connect motor phase wires to the PHASE connector from MPPB in any order. The connection will establish the motor spinning direction. The application might report a reverted direction (clockwise or conterclockwise) compared to the real one.
+5. If sensored control is preferred, connect motor Hall sensor wires to the HALL SENSOR connector from the MPPB in any order. It doesn't matter how the wires are connected, the algorithm will auto detect the right succession of hall sensors.
 
 <br><img src="images/full_setup_eb.png">
 
+The A, B, C wire connection succession is not mandatory for both phases and Hall sensors.<br>
 If the MPPB and the Adaptor boards are not used, the user can integrate the AVR EB into another hardware setup by using the following pinout:
 
 <h4> AVR16EB32 CNANO Board Motor Control Pinout </h4>
@@ -162,70 +161,81 @@ If the MPPB and the Adaptor boards are not used, the user can integrate the AVR 
 
 ### Predefined Config Settings
 
-This is a set of configuration settings, apart from the default values, needed to run the demo in Trapezoidal Sensorless/Sensored or Sinusoidal Sensored mode, with the motor ACT57BLF02. Overwrite the settings from [`mc_config.h`](#configurable-parameters) file with the ones listed below: 
+This is a set of configuration settings, apart from the default values, needed to run the demo in Trapezoidal Sensorless/Sensored or Sinusoidal Sensored mode, with the motor ACT57BLF02.<br> In configuration file [`mc_config.h`](#configurable-parameters) edit the settings according to the usage scenario. 
 
-<br><h4> 1. Trapezoidal Sensorless </h4></br>
-
+<br><h3> 1. Trapezoidal Sensorless </h3>
 ```c
 /* possible values:  MC_SENSORED_MODE, MC_SENSORLESS_MODE  */
-#define MC_CONTROL_MODE                 MC_SENSORLESS_MODE  
+#define MC_CONTROL_MODE                 MC_SENSORLESS_MODE
 
 /* possible values:  MC_CONTINUOUS_MODE, MC_STEPPED_MODE  */
-#define MC_DRIVE_MODE                   MC_STEPPED_MODE  
-
-/* possible values:  MC_SCALE_CENTER, MC_SCALE_BOTTOM  */
-#define MC_SCALE_MODE                   MC_SCALE_BOTTOM
+#define MC_DRIVE_MODE                   MC_STEPPED_MODE
 
 /* motor specific settings */
-#define MOTOR_PHASE_ADVANCE             (15.00)  /* degrees */
+#define MOTOR_PHASE_ADVANCE             (15.0)   /* degrees */
 #define MC_MOTOR_PAIR_POLES             (4)      /* pole pairs */
-#define MC_MIN_SPEED                    (400)    /* RPM - minimum speed */
+#define MC_MOTOR_PHASE_PHASE_RESISTANCE (0.4)    /* ohm */
+#define MC_MOTOR_KV                     (0.007)  /* volt/rpm */
+#define MC_RAMP_UP_DURATION             (1000)   /* milliseconds */
+#define MC_RAMP_DOWN_DURATION           (0)      /* milliseconds */
+#define MC_STARTUP_CURRENT              (2.5)    /* initial current amplitude [amperes] */
+#define MC_STARTUP_SPEED                (400)    /* switchover speed [rpm] */
 ```
+For Sensorless mode, the `MC_STARTUP_SPEED` must be set to at least 10-15% of the nominal speed of the motor.<br>
+`MC_STARTUP_CURRENT` parameter must be set to 20-30% of the motor's rated current value. For more details see [Sensorless Mode](#sensorless-mode).
 
-For Sensorless mode, the `MC_MIN_SPEED` must be set to at least 10-15% of the nominal speed of the motor.
-
-<br><h4> 2. Trapezoidal Sensored </h4></br>
-
+<br><h3> 2. Trapezoidal Sensored </h3>
 ```c
 /* possible values:  MC_SENSORED_MODE, MC_SENSORLESS_MODE  */
-#define MC_CONTROL_MODE                 MC_SENSORED_MODE  
+#define MC_CONTROL_MODE                 MC_SENSORED_MODE
 
 /* possible values:  MC_CONTINUOUS_MODE, MC_STEPPED_MODE  */
-#define MC_DRIVE_MODE                   MC_STEPPED_MODE  
+#define MC_DRIVE_MODE                   MC_STEPPED_MODE
 
 
 /* motor specific settings */
-#define MOTOR_HALL_DEVIATION            (0.00)   /* degrees */
-#define MOTOR_HALL_INVERTED             true     /* true - inverted, false - non-inverted */
-#define MOTOR_PHASE_ADVANCE             (15.00)  /* degrees */
+#define MOTOR_PHASE_ADVANCE             (15.0)   /* degrees */
 #define MC_MOTOR_PAIR_POLES             (4)      /* pole pairs */
-#define MC_MIN_SPEED                    (100)    /* RPM - minimum speed */
+#define MC_MOTOR_PHASE_PHASE_RESISTANCE (0.4)    /* ohm */
+#define MC_MOTOR_KV                     (0.007)  /* volt/rpm */
+#define MC_RAMP_UP_DURATION             (1000)   /* milliseconds */
+#define MC_RAMP_DOWN_DURATION           (0)      /* milliseconds */
+#define MC_STARTUP_CURRENT              (2.5)    /* initial current amplitude [amperes] */
+#define MC_STARTUP_SPEED                (60)     /* switchover speed [rpm] */
 ```
+For Trapezoidal Sensored mode, the `MC_STARTUP_SPEED` must be set to at least 2-5% of the nominal speed of the motor.<br>
+`MC_STARTUP_CURRENT` parameter must be set to 20-30% of the motor's rated current value. For more details see [Sensored Mode](#sensored-mode).
 
-For Sensored mode, the `MOTOR_HALL_INVERTED` must be set to either `true` or `false`, depending on the motor manufacturing. If this parameter is set to the wrong value, it is probable that the motor will enter a stall condition, or the power consumption will be high. For more details see [Sensored Mode](#sensored-mode).
-
-<br><h4> 3. Sinusoidal Sensored </h4></br>
-
+<br><h3> 3. Sinusoidal Sensored </h3>
 ```c
 /* possible values:  MC_SENSORED_MODE, MC_SENSORLESS_MODE  */
-#define MC_CONTROL_MODE                 MC_SENSORED_MODE  
+#define MC_CONTROL_MODE                 MC_SENSORED_MODE
 
 /* possible values:  MC_CONTINUOUS_MODE, MC_STEPPED_MODE  */
-#define MC_DRIVE_MODE                   MC_CONTINUOUS_MODE  
+#define MC_DRIVE_MODE                   MC_CONTINUOUS_MODE
+
+/* possible values:  MC_WAVE_SINE, MC_WAVE_SVM, MC_WAVE_SADDLE */
+#define MC_WAVE_PROFILE                 MC_WAVE_SADDLE
 
 /* motor specific settings */
-#define MOTOR_HALL_DEVIATION            (0.00)   /* degrees */
-#define MOTOR_HALL_INVERTED             true     /* true - inverted, false - non-inverted */
-#define MOTOR_PHASE_ADVANCE             (15.00)  /* degrees */
+#define MOTOR_PHASE_ADVANCE             (15.0)   /* degrees */
 #define MC_MOTOR_PAIR_POLES             (4)      /* pole pairs */
-#define MC_MIN_SPEED                    (100)    /* RPM - minimum speed */
+#define MC_MOTOR_PHASE_PHASE_RESISTANCE (0.4)    /* ohm */
+#define MC_MOTOR_KV                     (0.007)  /* volt/rpm */
+#define MC_RAMP_UP_DURATION             (1000)   /* milliseconds */
+#define MC_RAMP_DOWN_DURATION           (0)      /* milliseconds */
+#define MC_STARTUP_CURRENT              (1.0)    /* initial current amplitude [amperes] */
+#define MC_STARTUP_SPEED                (60)     /* switchover speed [rpm] */
 ```
-
-For Sensored mode, the `MOTOR_HALL_INVERTED` must be set to either `true` or `false`, depending on the motor manufacturing. If this parameter is set to the wrong value, it is probable that the motor will enter a stall condition, or the power consumption will be high. For more details see [Sensored Mode](#sensored-mode).
-
-After all the steps from [Quick Start Guide](#quick-start-guide) are completed, turn the MPPB potentiometer to 50 and press the MPPB button to spin the motor in clockwise direction.
+For Sinsoidal Sensored mode, the `MC_STARTUP_SPEED` must be set to at least 2-5% of the nominal speed of the motor.<br>
+`MC_STARTUP_CURRENT` parameter must be set to 10-15% of the motor's rated current value. For more details see [Sensored Mode](#sensored-mode).
 
 ## Application Usage
+
+### Let's spin the motor
+
+After all the steps from [Quick Start Guide](#quick-start-guide) are completed, turn the MPPB potentiometer to 50% then press the MPPB button to spin the motor in clockwise direction.
+Depending on the phase wires connection to the MPPB, the actual spinning directiom might differ from the one reported by the application.
 
 ### Basic Functionality
 
@@ -328,14 +338,15 @@ In case the application doesn't have the described behaviour from [Application U
 <br>• <b>`MC_Control_StartStop()`</b> - Starts or stops the motor depending on which state it is found in when the start-stop event is received
 <br>• <b>`MC_Control_DelayMs()`</b> - Performs a delay using a timer in the background
 <br>• <b>`MC_Control_ReferenceSet()`</b> - Sets the reference point for speed in closed loop, or the amplitude level in open loop synchronization
-<br>• <b>`MC_Control_PotentiometerRead()`</b> - Returns potentiometer value expressed in percentage
-<br>• <b>`MC_Control_FastPotentiometerRead()`</b> - Returns potentiometer value expressed in raw Analog-to-Digital (ADC) format
-<br>• <b>`MC_Control_VoltageBusRead()`</b> - Returns voltage bus value expressed in volts
+<br>• <b>`MC_Control_PotentiometerRead()`</b> - Returns potentiometer value expressed in percentage 0-100
+<br>• <b>`MC_Control_FastPotentiometerRead()`</b> - Returns potentiometer value expressed in 16 bit format, in range 0-65535
+<br>• <b>`MC_Control_VoltageBusRead()`</b> - Returns voltage bus value expressed in millivolts
 <br>• <b>`MC_Control_TemperatureRead()`</b> - Returns MOSFET transistors temperature expressed in degrees Celsius
-<br>• <b>`MC_Control_CurrentRead()`</b> - Returns mean application current consumption expressed in milliamperes
-<br>• <b>`MC_Control_Speed_Get()`</b> - Returns the rotational speed expressed in `mc_speed_t`
-<br>• <b>`MC_Control_PeriodicHandlerRegister()`</b> - Registers a custom software callback for the main application. This function must be called from main, not from interrupt context.
-<br>• <b>`MC_Control_StatusGet()`</b> - Returns the state of the motor (`MOTOR_IDLE`, `MOTOR_RUNNING` or `MOTOR_FAULT`), direction of the motor (`MC_DIR_CW` or `MC_DIR_CCW`), and the fault status (`FAULT_UNDERVOLTAGE`, `FAULT_OVERVOLTAGE`, `FAULT_STALL`, `FAULT_OVERTEMPERATURE` or `FAULT_OVERCURRENT`)
+<br>• <b>`MC_Control_CurrentRead()`</b> - Returns average application current consumption expressed in milliamperes
+<br>• <b>`MC_Control_Speed_Get()`</b> - Returns the rotational speed expressed in `mc_speed_t` data type. Use macro `MC_MCSPEED_TO_RPM()` to convert into rpm.
+<br>• <b>`MC_Control_PeriodicHandlerRegister()`</b> - Registers a custom software callback for the main application. This function must be called from main, not from interrupt context. The callback function is called once every 1 ms.
+<br>• <b>`MC_Control_StatusGet()`</b> - Returns the state of the motor (`MOTOR_IDLE`, `MOTOR_RUNNING` or `MOTOR_FAULT`), direction of the motor (`MC_DIR_CW` or `MC_DIR_CCW`), and the fault status (`FAULT_UNDERVOLTAGE`, `FAULT_OVERVOLTAGE`, `FAULT_STALL`, `FAULT_HALL`, `FAULT_OVERTEMPERATURE` or `FAULT_OVERCURRENT`)
+<br>• <b>`MC_Control_HallError_Get()`</b> - Returns the state of hall sensors after the scanning algorithm ('0' if the scan was a success and other values if the scan recorded errors) 
 
 Users must use only the public APIs from the `motor_control.h` file so as not to alter the library functionality in any way.
 
@@ -345,21 +356,22 @@ The parameters from config file used to customize the application are the follow
 
 <br><b> MOTOR SETTINGS </b>
 
-<br>• <b>`MOTOR_HALL_DEVIATION`</b> - Hall sensors are imperfect, and deviations can appear from mechanical placements or other various reasons. This parameter is expressed in electrical degrees.
-<br>• <b>`MOTOR_HALL_INVERTED`</b> - Some Hall sensors give `1` logic output when the magnet is near them, other sensors give `0` logic output when a magnet is near them
 <br>• <b>`MOTOR_PHASE_ADVANCE`</b> - Can range from 0 to 30 electrical degrees. This parameter is used to obtain greater speeds than the maximum the drive algorithm would normally be able to obtain and also to optimize the power consumption.
-<br>• <b>`MC_MOTOR_POLE_PAIRS`</b> - Can range from 1 to 28 pole pairs, usually suppplied by the motor manufacturer in the data sheet
-<br>• <b>`MC_MIN_SPEED`</b> - Used as target RPM speed by the ramp-up algorithm, spinning up from zero to target speed. This is the speed from where the switchover between forced commutation and synchronization loop starts. If Sensorless mode is used, this paramater must be set to at least 10-15% of the nominal speed of the motor.
+<br>• <b>`MC_MOTOR_PAIR_POLES`</b> - Can range from 1 to 28 pole pairs, usually suppplied by the motor manufacturer in the data sheet
+<br>• <b>`MC_STARTUP_SPEED`</b> - Used as target RPM speed by the ramp-up algorithm, spinning up from zero to target speed. This is the speed from where the switchover between forced commutation and synchronization loop starts. If Sensorless mode is used, this paramater must be set to at least 10-15% of the nominal speed of the motor. If Sensored mode is used this parameter can be set to 1, but the synchronization is not guaranteed below 5% of the nominal speed of the motor.
+<br>• <b>`MC_STARTUP_CURRENT`</b> - The amount of current supplied to the motor phases during the start-up phase, given in amperes. If the value set forthis parameter is too low, the application will throw an error message and the motor ramp-up will fail. Usually a value between 0.5 A and 1 A is enough.
 <br>• <b>`MC_RAMP_UP_DURATION`</b> - The desired duration for the Ramp-up algorithm, given in milliseconds
 <br>• <b>`MC_RAMP_DOWN_DURATION`</b> - The desired duration for the Ramp-down algorithm, given in milliseconds
-<br>• <b>`MC_STARTUP_VOLTAGE`</b> - The amount of voltage supplied to the motor phases during the start-up phase, given in volts. If the supply voltage is less than the start-up voltage, the application will throw an error message and the motor ramp-up will fail.
+<br>• <b>`MC_MOTOR_PHASE_PHASE_RESISTANCE`</b> - Resistance value between two motor phases, given in ohms
+<br>• <b>`MC_MOTOR_KV`</b> - Motor KV constant, given in V/RPM
+
 
 <br><b> POWER BOARD SETTINGS </b>
 
 <br>• <b>`MC_SHUNT_RESISTANCE`</b> - The current sense shunt resistance, given in ohms, dependent on the power board
-<br>• <b>`MC_CURR_SENSOR_GAIN`</b> - The current sense amplifier, dependent on the power board
-<br>• <b>`MC_VBUS_DIVIDER`</b> - The voltage divider, used to scale the VBUS to be able to measure it with the MC_VOLTAGE_REFFERENCE logic, dependent on the power board
-<br>• <b>`MC_VOLTAGE_REFFERENCE`</b> - The voltage reference (this application has a 3V3 logic)
+<br>• <b>`MC_CURR_AMPLIFIER_GAIN`</b> - The current sense amplifier, dependent on the power board
+<br>• <b>`MC_VBUS_DIVIDER`</b> - The voltage divider, used to scale the VBUS to be able to measure it with the `MC_ADC_REFERENCE` logic, dependent on the power board
+<br>• <b>`MC_ADC_REFERENCE`</b> - The voltage reference (this application has a 3V3 logic)
 <br>• <b>`MC_TEMP_K1`</b> - The temperature sensor coefficient, dependent on the power board
 <br>• <b>`MC_TEMP_K1`</b> - The temperature sensor coefficient, dependent on the power board
 
@@ -367,8 +379,7 @@ The parameters from config file used to customize the application are the follow
 
 <br>• <b>`PWM_DTH`</b> - The value of dead-time inserted at the left of one complementary PWM signals pair, given in nanoseconds
 <br>• <b>`PWM_DTL`</b> - The value of dead-time inserted at the right of one complementary PWM signals pair, given in nanoseconds
-<br>• <b>`PWM_PERIOD`</b> - The value of the PWM signals period given in microseconds
-<br>• <b>`MC_SCALE_MODE`</b> - Selects the scaling from PWM signals to start from 0% up to 100% duty cycle in `MC_SCALE_BOTTOM` mode
+<br>• <b>`PWM_FREQUENCY`</b> - The value of the PWM signals frequency given in Hz, can range between 15000 Hz and 45000 Hz
 
 <br><b> APPLICATION SETTINGS </b>
 
@@ -379,11 +390,12 @@ The parameters from config file used to customize the application are the follow
 <br><b> CONTROL FUNCTIONALITY SETTINGS </b>
 
 <br>• <b>`MC_SPEED_REGULATOR_EN`</b> - Enables or disables the closed loop over speed regulation
+<br>• <b>`MC_SPEED_REGULATOR_MIN`</b> - Minimum speed that can be fed to the closed loop PI speed regulator
+<br>• <b>`MC_SPEED_REGULATOR_MAX`</b> - Maximum speed that can be fed to the closed loop PI speed regulator
 <br>• <b>`MC_SYNCHRONIZED`</b> - Activates the synchronization loop. When the amplitude of the motor is modified or a load is applied to the motor's shaft, the speed will change accordingly so as not to lose synchronization. If the dynamic load change is too great, after a time-out, the application will detect a motor stall.
 <br>• <b>`MC_CONTROL_MODE`</b> - Selects between sensored with Hall sensors Control `MC_SENSORED_MODE` mode and sensorless with BEMF Control mode `MC_SENSORLESS_MODE`
 <br>• <b>`MC_DRIVE_MODE`</b> - Selects the drive method between Trapezoidal `MC_STEPPED_MODE` and Sinusoidal `MC_CONTINUOUS_MODE`
-<br>• <b>`MC_STALL_EVENTS_THRESHOLD`</b> - Number of misalignment events before throwing a stall error
-<br>• <b>`MC_STALL_ERROR_TOLERANCE`</b> - Angle error expressed in electrical degrees that conducts to a stall condition
+<br>• <b>`MC_WAVE_PROFILE`</b> - Selects one of the sinusoidal drive profiles `MC_WAVE_SADDLE` or `MC_WAVE_SVM`. Pure sinus is supported either as `MC_WAVE_SINE`, but the start-up current must be increased by a factor of 1.2.
 <br>• <b>`MC_FAULT_ENABLED`</b> - Enables or disables the fault handling mechanism
 
 <br> All these parameters are set to safe default values. With the initial values, the motor will spin, maybe not optimal, but it is a good starting point to start tunning for a custom application.
@@ -419,9 +431,15 @@ The User Layer represents the application from the `main` file and it integrates
 ### Control Layer
 
 <br> The Control Layer is a wrapper for Drive Layer, Sense Layer, Analog Interface Layer, Fault Layer and its APIs can be used in the `main.c` file by the user. This layer is responsible for updating the values of the PWM driving signals from the Drive Layer based on the feedback it got from the Sense Layer. Also, this layer adjusts the driving sequence to follow the Hall/BEMF sequence to keep the synchronization, and to handle fault situations. Lastly, this layer is used to get more abstract and device independent APIs for monitoring the analog parameters.
-<br> All run-time functionality is done in a motor handler function called in an Interrupt Service Routine (ISR) that takes place every 50 µs. The time spent during this interrupt window can be observed from the image below:
+<br> All run-time functionality is done in a motor handler function called in an Interrupt Service Routine (ISR). Depending on the chosen switching frequency, selected by modifying the `PWM_FREQUENCY` parameter from `mc_config.h` file, the handler scheduling differs. The application supports switching frequencies in a range between 15 kHz and 45 kHz. If the switching frequency is lower or equal to 20 kHz the motor handler will be executed in a single ISR. If the switching frequency is higher than 20 kHz the motor handler will be executed in two consecutive ISRs. The time spent during the interrupt windows based on `PWM_FREQUENCY` can be observed from the examples below:
 
-<br><img src="images/mc_interrupt_time_diagram.png">
+<br> `PWM_FREQUENCY` is set to 20K kHz, the motor handler is called during an ISR each 50 µs:
+
+<br><img src="images/mc_interrupt_time_diagram_20kHz.png">
+
+<br> `PWM_FREQUENCY` is set to 40K kHz, the motor handler content is split between two consecutive ISR, each called every 25 µs:
+
+<br><img src="images/mc_interrupt_time_diagram_40kHz.png">
 
 <br> The Control layer uses a state machine consisting of three states (`MOTOR_IDLE`, `MOTOR_RUNNING` and `MOTOR_FAULT`) to be aware at all times about the motor status and what action needs to be taken next. The `START_STOP_EVENT` coming from the main application starts or stops the motor. The `FAULT_SET_EVENT` and `FAULT_CLEAR_EVENT` are used to trigger and clear fault situations. The state machine flowchart is depicted in the image below:
 
@@ -507,7 +525,7 @@ The driving signals update happens in an Interrupt Service Routine (ISR) every 5
 
  By using only the Drive Layer, the motor can be spun in Forced Commutation mode, updating the driving sequence blindly without using any feedback from the rotor's position. If a load is applied, Forced Commutation is not enough to stop the motor from entering a Stall state. In practice, it spins up a motor to a speed from where it is safe to start the synchronization loop. For example, BEMF is not detectable until the motor reaches at least 10-15% of the nominal speed, so the motor spins up using a ramp in Force Commutation mode, and only then the synchronization and Closed Loop control can start.
 
-### Sense Layer
+### Feedback Sensing Layer
 
 <h4> Hall Sensor Support in Sensored Mode </h4>
 
@@ -517,29 +535,30 @@ The driving signals update happens in an Interrupt Service Routine (ISR) every 5
 
 #### Sensored Mode
 
-<br> Sometimes, Hall sensors have mechanical misalignments due to manufacturing imperfections or due to user's intervention. Because of this, the data acquisition can be affected, resulting in non-optimal running or even bad behaviour of the motor. To compensate for these errors, the `MOTOR_HALL_DEVIATION` parameter can be adjusted using the following steps:
-1. Set the `MOTOR_HALL_DEVIATION` parameter to 0.00, compile and program.
-2. Spin the motor CW then CCW and write down the reported speeds.
-3. If recorded speed in CW direction is higher than that in CCW direction, then `MOTOR_HALL_DEVIATION` parameter needs to be increased. As a rule of thumb, for every 100 RPM one degree is added to deviation.
-<br>E.g: If CW speed is 5200 RPM and CCW speed is 4800 RPM, the difference is 400 RPM then, the first tried value for `MOTOR_HALL_DEVIATION` is 4 degrees.
-4. If the recorded speed in CW direction is lower than that in CCW direction, then the `MOTOR_HALL_DEVIATION` parameter needs to be decreased. This parameter is allowed to have both a positive or a negative value.
-5. Repeat the process from step 2 until the speed and current consumption have very close values in CW and CCW directions.
+<br> Sensored control allows to control the motor from 5% of the nominal speed and up to the maximum nominal speed. Below 5% of the nominal speed there is no guaranteed stability.
 
-<br> Another parameter that must be adjusted is `MOTOR_HALL_INVERTED`. Hall sensors can have different outputs, when a magnet is near them, as shown in the image below:
-
-<br><img src="images/invert_non_invert.png">
 
 <br> For Trapezoidal drive, the Hall combination read from the pins decides which sector follows next. Usually, these sensors are in number of three and are placed inside the motor, each sensor 120° apart from another one.
+<br><img src="images/hall_signals.png">
 
-<br> The Hall transitions are mapped using a state machine with six states (from ST0 up ST5) in a circular shape that repeats itself over and over. The rotation direction doesn't impact the order scrolling through the states. The order of scrolling through the states will always be ST0 -> ST1 -> ST2 -> ST3 -> ST4 -> ST5 -> ST0 and so on. The state machine implementation can be observed from the images below:
+<br> The Hall transitions are mapped using a hall scan algorithm that autodetects the hall succession table, independently on the motor phase and hall sensors wire connections. When the application starts the motor spins up with a ramp, then hall scan algorithm is called. The algorithm has four steps:
+1. After the ramp is finished, the motor is spinning at a constant speed for one mechanical turn to wait for motion to stabilize.
+2. The next mechanical turn is used to acquire data about hall transitions and the angles these transitions were detected at.
+3. After all the data is acquired a validation process starts, to check for defects like bad connections or defective hall sensors.
+4. The last step consist in the generation of the hall mapping table.
 
-<br><img src="images/hall_cw_sm.png">
-<br><img src="images/hall_ccw_sm.png">
-<br><img src="images/hall_sm_cw_ccw.png">
+The hall succession can be observed from the image below:
 
-<br> For Sinusoidal drive, all three motor phases are continuously driven so there are no sectors, but the sensing algorithm is the same as in the Trapezoidal drive case. Based on the combination read from the Hall sensors the motor's rotor position can be estimated roughly every 60 electrical degrees. In this way,  the sensing and synchronization algorithms are unified for both Trapezoidal and Sinusoidal drive.
+<br><img src="images/hall_succession.png">
+
+It doesn't matter how the wires are connected the hall succession will be the same. The only thing that differ is the starting point and the scrolling sense of the hall table, for CW in one way and for CCW in the other way. All these things are determined at startup by the hall scan algorithm.
+
+
+<br> For Sinusoidal drive, all three motor phases are continuously driven so there are no sectors like in trapezoidal drive, but the sensing algorithm is the same. Based on the combination read from the Hall sensors, the motor's rotor position can be estimated roughly every 60 electrical degrees. In this way, the sensing and synchronization algorithms are unified for both Trapezoidal and Sinusoidal drive.
 
 #### Sensorless Mode
+
+<br>Sensorless control allows to control the motor from 10 - 15% of the nominal speed and up to the maximum nominal speed. Below 10% of the nominal speed there is no guaranteed stability, the BEMF signals levels are not good enough to be detected.
 
 <h4> BEMF Acquisition in Sensorless Mode </h4>
 
@@ -570,11 +589,11 @@ The Analog Layer is responsible of monitoring some of the Motor Parameters for f
 - Potentiometer - Provided at run-time as a percentage between 0% and 100% and used for imposing a Voltage Bus duty cycle to the motor in open loop synchronization, 0% meaning the minimum duty cycle and 100% meaning the maximum duty cycle. The potentiometer is used to impose a reference speed for the motor in closed loop control
 - Current - Provided at run-time and used for displaying the mean power consumption of the motor
 
-Voltage Bus, Temperature, Potentiometer and Current are converted using the Single-Ended Conversion mode of the ADC with over sampling burst accumulation (due to a feature of the ADC present on AVR EB, a 17-bit resolution can be achieved). Data provided by analog layer represents averaged and low pass filtered information. So, it is not time-accurate information, but the values obtained are smoother.
+Voltage Bus, Temperature, Potentiometer and Current are converted using the Single-Ended and Differential Conversion mode of the ADC with over sampling burst accumulation (due to a feature of the ADC present on AVR EB, a 17-bit resolution can be achieved). Data provided by analog layer represents averaged and low pass filtered information. So, it is not time-accurate information, but the values obtained are smoother.
 
 ### Fault Layer
 
- The Fault Layer provides Peak OCP, Avg OCP, OVP, UVP, OTEMP and stall detection. The peripherals used for the Fault Layer are the ADC, AC, Event System (EVSYS) and WEX. The Fault Layer is responsible for protecting the hardware setup from irreversible damage.
+ The Fault Layer provides Peak OCP, Avg OCP, OVP, UVP, OTEMP, stall detection and hall error. The peripherals used for the Fault Layer are the ADC, AC, Event System (EVSYS) and WEX. The Fault Layer is responsible for protecting the hardware setup from irreversible damage.
 
 <h4> The Fault Layer is divided in two categories: </h4>
 
@@ -589,11 +608,7 @@ Voltage Bus, Temperature, Potentiometer and Current are converted using the Sing
 <br><img src="images/fault_hysteresis.png">
 
 <br> The hysteresis type of fault applies to OVP, UVP and OTEMP. In case of average/peak OCP and stall there is no hysteresis applied.
-
-<br> A stall of the motor is detected if the current motor state is `MOTOR_RUNNING` and if a new transition from either BEMF or Hall sensors has not come for more than a time-out angle expressed in electrical degrees. The time-out angle can be configured by changing the `MC_STALL_ERROR_TOLERANCE` parameter value. If stall conditions are met, the motor is stopped, and to restore the operation, short press the MPPB button.
-
-<br><img src="images/stall_detection.png">
-
+<br> A stall of the motor is detected if the current motor state is `MOTOR_RUNNING` and if the instantaneous rotor's speed falls below 50 mechanical RPM. If stall conditions are met, the motor is stopped, and to restore the operation, short press the MPPB button.
 <br> The average OCP does not detect momentary high current spikes. This type of fault will trigger if the load slowly increases in time, until a limit is reached. The average OCP is shown in the image below:
 
 <br><img src="images/avg_ocp.png">
@@ -607,7 +622,7 @@ Voltage Bus, Temperature, Potentiometer and Current are converted using the Sing
 
 The peak OCP is much faster than the average OCP because it is done in hardware. In case of a momentary high current spike, the peak OCP will trigger.
 
-All the fault limit values are described in [Fault Limits](#fault-limits).
+All the fault limit values are described in [Fault Limits Settings](#fault-limits-settings).
 
 ## Results
 
@@ -625,10 +640,10 @@ Below are some logic analyzer and oscilloscope captures, to have a better view a
 
 ### Sinusoidal Drive
 
-<br>Capture taken with SVPWM drive, 10 degrees phase advance. To use this type of drive, select `MC_SCALE_MODE` parameter to `MC_SCALE_CENTER`.
+<br>Capture taken with SVPWM drive, 10 degrees phase advance. To use this type of drive, select `MC_WAVE_PROFILE` parameter to `MC_WAVE_SVM` in [`mc_config.h`](#configurable-parameters).
 <br><img src="images/svm.png">
 
-<br>Capture taken with Saddle drive, 10 degrees phase advance. To use this type of drive, select `MC_SCALE_MODE` parameter to `MC_SCALE_BOTTOM`.
+<br>Capture taken with Saddle drive, 10 degrees phase advance. To use this type of drive, select `MC_WAVE_PROFILE` parameter to `MC_WAVE_SADDLE` in [`mc_config.h`](#configurable-parameters).
 <br><img src="images/saddle.png">
 
 ## Troubleshooting Guide
@@ -654,7 +669,6 @@ Below are some logic analyzer and oscilloscope captures, to have a better view a
 
 <br> To fix this issue check the following steps:</br>
 <br> - Make sure the MPPB is connected to the power supply and the board is powered as mentioned in [Hardware Setup](#hardware-setup). If the MPPB board is powered, the LEDs for 3v3, 5V, and 12V are on.
-<br> - Make sure the power supply voltage is at least double the value of `MC_STARTUP_VOLTAGE` and no less than 5V if the MPPB board is used, otherwise the start-up process fails and the motor will not start spinning
 <br> - Make sure the CNANO board is connected to the PC and is programmed with the `mc_demo.X` project
 <br> - Make sure that if multiple projects are open at the same time in MPLAB X IDE, the `mc_demo.X` project is set as main project, as specified in step three from [Software Setup](#software-setup). Otherwise there is a risk to program the CNANO board with the wrong project.
 
@@ -662,11 +676,10 @@ Below are some logic analyzer and oscilloscope captures, to have a better view a
 
 <br> To fix this issue check the following steps:</br>
 <br> - Disable `MC_SYNCHRONIZED` and `MC_SPEED_REGULATOR_EN`, and the motor will stay forever in Forced Commutation mode and remove any load from the motor if it is present
-<br> - Make sure the `MC_MIN_SPEED` parameter is at least 10-15% of the nominal speed of the motor mentioned in the data sheet and reprogram the CNANO board
-<br> - If the motor is not spinning without vibrations, try to increase the `MC_MIN_SPEED` to 15% of the nominal speed
-<br> - If the motor is still not spinning accordingly, increase the `MC_STARTUP_VOLTAGE` parameter with increments of one volt per trial
-<br> - Tweak `MC_STARTUP_VOLTAGE` and `MC_MIN_SPEED` until the ramp-up spins the motor without vibrations
-<br> - Connect the load back, if it was removed for this troubleshoot, and spin the motor again. If it spins without vibrations, then the `MC_SYNCHRONIZED` and `MC_SPEED_REGULATOR_EN` can be enabled again. If not, try to increase the `MC_STARTUP_VOLTAGE` parameter a bit more and try again.
+<br> - Make sure the `MC_STARTUP_SPEED` parameter is at least 15% of the nominal speed of the motor mentioned in the data sheet and reprogram the CNANO board
+<br> - If the motor is still not spinning accordingly, increase the `MC_STARTUP_CURRENT` parameter with increments of 0.5 A per trial, until the motor starts smoothly.
+<br> - Tweak `MC_STARTUP_CURRENT` and `MC_STARTUP_SPEED` until the ramp-up spins the motor without vibrations
+<br> - Connect the load back, if it was removed for this troubleshoot, and spin the motor again. If it spins without vibrations, then the `MC_SYNCHRONIZED` and `MC_SPEED_REGULATOR_EN` can be enabled again. If not, try to increase the `MC_STARTUP_CURRENT` parameter a bit more and try again.
 <br> - `MC_RAMP_UP_DURATION`, given in milliseconds, can also be increased, to avoid an abrupt ramp-up
 
 ### Scenario 4: The motor starts, spins a few times, then stops or runs erratically
@@ -703,11 +716,15 @@ Below are some logic analyzer and oscilloscope captures, to have a better view a
 
 ### Scenario 10: Changes made in `mc_config.h` have no effect
 
-<br> After changing some options in `mc_config.h` and reprogramming, the changes have no effect. This happens if the project is not built and compiled properly. After every change made in `mc_config.h`, the CNANO board must be reprogrammed using the steps five and six from [Software Setup](#software-setup).</br>
+<br> After changing some options in `mc_config.h` and reprogramming, the changes have no effect. This happens if the project is not built and compiled properly. After every change made in `mc_config.h`, the MPLABX project should be cleaned and rebuilt before reprogramming the CNANO board. Check the steps six and seven from [Software Setup](#software-setup).</br>
 
 ### Scenario 11: CNANO board is not recognised in MPLAB X IDE
 
 <br> After plugging and unplugging the CNANO board from PC multiple times, there is a small chance that the CNANO board is not seen anymore by the MPLAB X IDE. If that happens, try unplugging and plugging the board again. If the issue is not fixed, close and restart MPLAB X IDE.</br>
+
+### Scenario 12: Hall scan process fails
+
+<br> This usually happens because the `MC_STARTUP_CURRENT` is not big enough. Try to increase this parameter by 0.5 A per trial. Other causes might be a faulty connection for hall sensors, or even defective hall sensors. In Trapezoidal Sensored mode, the `MC_STARTUP_CURRENT` must be higher compared to Sinusoidal Sensored mode in order to have a successful hall scan.</br>
 
 ## Summary
 

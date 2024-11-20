@@ -61,9 +61,11 @@ void TCB0_Initialize(void)
 
     //Compare or Capture
     TCB0.CCMP = 0xFFFF;
+    //TCB0.CCMP = 999;
 
     //Count
     TCB0.CNT = 0x0;
+    //TCB0.CNT = 800;
 
     //ASYNC disabled; CCMPEN disabled; CCMPINIT disabled; CNTMODE INT; 
     TCB0.CTRLB = TCB_CNTMODE_INT_gc; //periodic interrupt
@@ -75,7 +77,8 @@ void TCB0_Initialize(void)
     TCB0.EVCTRL = 0x0;
 
     //CAPT enabled; OVF disabled; 
-    TCB0.INTCTRL = TCB_CAPT_bm;
+//    TCB0.INTCTRL = TCB_CAPT_bm;
+    TCB0.INTCTRL = 0x0;
 
     //CAPT disabled; OVF disabled; 
     TCB0.INTFLAGS = 0x0;
@@ -85,6 +88,7 @@ void TCB0_Initialize(void)
 
     //CASCADE disabled; CLKSEL DIV1; ENABLE enabled; RUNSTDBY disabled; SYNCUPD disabled; 
     TCB0.CTRLA = TCB_CLKSEL_DIV2_gc;
+    //TCB0.CTRLA = TCB_CLKSEL_TCE0_gc;
 }
 
 void TCB0_Start(void)

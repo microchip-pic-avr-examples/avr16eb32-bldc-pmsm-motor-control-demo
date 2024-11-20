@@ -26,7 +26,6 @@
       <itemPath>../../internal/mc_analog.c</itemPath>
       <itemPath>../../internal/mc_comparator.c</itemPath>
       <itemPath>../../internal/mc_comparator.h</itemPath>
-      <itemPath>../../internal/mc_control_analog.h</itemPath>
       <itemPath>../../internal/mc_control_fault.h</itemPath>
       <itemPath>../../internal/mc_fault.c</itemPath>
       <itemPath>../../internal/mc_internal_defines.h</itemPath>
@@ -41,6 +40,7 @@
       <itemPath>../../internal/motor_control.c</itemPath>
       <itemPath>../../internal/mc_ramp.c</itemPath>
       <itemPath>../../internal/mc_ramp.h</itemPath>
+      <itemPath>../../internal/mc_control_analog.h</itemPath>
     </logicalFolder>
     <logicalFolder name="HeaderFiles" displayName="Platform" projectFiles="true">
       <logicalFolder name="f2" displayName="AVR16EB32" projectFiles="true">
@@ -101,11 +101,11 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>nEdbgTool</platformTool>
         <languageToolchain>XC8</languageToolchain>
-        <languageToolchainVersion>2.46</languageToolchainVersion>
+        <languageToolchainVersion>2.50</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <packs>
-        <pack name="AVR-Ex_DFP" vendor="Microchip" version="2.9.197"/>
+        <pack name="AVR-Ex_DFP" vendor="Microchip" version="2.10.205"/>
       </packs>
       <ScriptingSettings>
       </ScriptingSettings>
@@ -258,7 +258,7 @@
         <property key="memories.programmemory.ranges" value="0-1fff"/>
         <property key="poweroptions.powerenable" value="true"/>
         <property key="programmerToGoFilePath"
-                  value="C:/repos/motor_control_bemf_sin_dvrt/motor-control/mc-library/Apps/mc_demo_graph.X/debug/AVR_EB/mc_demo_graph_ptg"/>
+                  value="C:/REPOS/MCU8NPIAPPS/motor-control_f_1.2.0_RC1/mc-library/apps/mc_demo.X/debug/AVR16EB32_free/mc_demo_ptg"/>
         <property key="programmerToGoImageName" value="mc_drive_open_loop_EB_DA_ptg"/>
         <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>
@@ -344,6 +344,8 @@
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="0-1fff"/>
         <property key="poweroptions.powerenable" value="true"/>
+        <property key="programmerToGoFilePath"
+                  value="C:/REPOS/MCU8NPIAPPS/motor-control-release/apps/mc_demo.X/debug/AVR16EB32_free/mc_demo_ptg"/>
         <property key="programoptions.eraseb4program" value="true"/>
         <property key="programoptions.preservedataflash" value="false"/>
         <property key="programoptions.preservedataflash.ranges"
@@ -431,11 +433,11 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>nEdbgTool</platformTool>
         <languageToolchain>XC8</languageToolchain>
-        <languageToolchainVersion>2.46</languageToolchainVersion>
+        <languageToolchainVersion>2.50</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <packs>
-        <pack name="AVR-Ex_DFP" vendor="Microchip" version="2.9.197"/>
+        <pack name="AVR-Ex_DFP" vendor="Microchip" version="2.10.205"/>
       </packs>
       <ScriptingSettings>
       </ScriptingSettings>
@@ -464,6 +466,113 @@
         <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
         <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
+      <item path="../../internal/motor_control.c" ex="false" overriding="false">
+        <HI-TECH-COMP>
+          <property key="additional-warnings" value="true"/>
+          <property key="asmlist" value="true"/>
+          <property key="call-prologues" value="false"/>
+          <property key="default-bitfield-type" value="true"/>
+          <property key="default-char-type" value="true"/>
+          <property key="define-macros" value=""/>
+          <property key="disable-optimizations" value="false"/>
+          <property key="extra-include-directories"
+                    value=".;../../platform/utils;../../interface;../../internal;../../platform/dvrt;../../platform/avr16eb32"/>
+          <property key="favor-optimization-for" value="-speed,+space"/>
+          <property key="garbage-collect-data" value="true"/>
+          <property key="garbage-collect-functions" value="true"/>
+          <property key="identifier-length" value="255"/>
+          <property key="local-generation" value="false"/>
+          <property key="operation-mode" value="pro"/>
+          <property key="opt-xc8-compiler-strict_ansi" value="false"/>
+          <property key="optimization-assembler" value="true"/>
+          <property key="optimization-assembler-files" value="false"/>
+          <property key="optimization-debug" value="false"/>
+          <property key="optimization-invariant-enable" value="false"/>
+          <property key="optimization-invariant-value" value="16"/>
+          <property key="optimization-level" value="-Os"/>
+          <property key="optimization-speed" value="false"/>
+          <property key="optimization-stable-enable" value="false"/>
+          <property key="preprocess-assembler" value="true"/>
+          <property key="short-enums" value="true"/>
+          <property key="tentative-definitions" value="-fno-common"/>
+          <property key="undefine-macros" value=""/>
+          <property key="use-cci" value="false"/>
+          <property key="use-iar" value="false"/>
+          <property key="verbose" value="false"/>
+          <property key="warning-level" value="-3"/>
+          <property key="what-to-do" value="ignore"/>
+        </HI-TECH-COMP>
+        <HI-TECH-LINK>
+          <property key="additional-options-checksum" value=""/>
+          <property key="additional-options-checksumAVR" value=""/>
+          <property key="additional-options-code-offset" value=""/>
+          <property key="additional-options-command-line" value=""/>
+          <property key="additional-options-errata" value=""/>
+          <property key="additional-options-extend-address" value="false"/>
+          <property key="additional-options-trace-type" value=""/>
+          <property key="additional-options-use-response-files" value="false"/>
+          <property key="backup-reset-condition-flags" value="false"/>
+          <property key="calibrate-oscillator" value="false"/>
+          <property key="calibrate-oscillator-value" value="0x3400"/>
+          <property key="clear-bss" value="true"/>
+          <property key="code-model-external" value="wordwrite"/>
+          <property key="code-model-rom" value=""/>
+          <property key="create-html-files" value="false"/>
+          <property key="data-model-ram" value=""/>
+          <property key="data-model-size-of-double" value="24"/>
+          <property key="data-model-size-of-double-gcc" value="no-short-double"/>
+          <property key="data-model-size-of-float" value="24"/>
+          <property key="data-model-size-of-float-gcc" value="no-short-float"/>
+          <property key="display-class-usage" value="false"/>
+          <property key="display-hex-usage" value="false"/>
+          <property key="display-overall-usage" value="true"/>
+          <property key="display-psect-usage" value="false"/>
+          <property key="extra-lib-directories" value=""/>
+          <property key="fill-flash-options-addr" value=""/>
+          <property key="fill-flash-options-const" value=""/>
+          <property key="fill-flash-options-how" value="0"/>
+          <property key="fill-flash-options-inc-const" value="1"/>
+          <property key="fill-flash-options-increment" value=""/>
+          <property key="fill-flash-options-seq" value=""/>
+          <property key="fill-flash-options-what" value="0"/>
+          <property key="format-hex-file-for-download" value="false"/>
+          <property key="initialize-data" value="true"/>
+          <property key="input-libraries" value="libm"/>
+          <property key="keep-generated-startup.as" value="false"/>
+          <property key="link-in-c-library" value="true"/>
+          <property key="link-in-c-library-gcc" value=""/>
+          <property key="link-in-peripheral-library" value="false"/>
+          <property key="managed-stack" value="false"/>
+          <property key="opt-xc8-linker-file" value="false"/>
+          <property key="opt-xc8-linker-link_startup" value="false"/>
+          <property key="opt-xc8-linker-serial" value=""/>
+          <property key="program-the-device-with-default-config-words" value="true"/>
+          <property key="remove-unused-sections" value="true"/>
+        </HI-TECH-LINK>
+        <XC8-CO>
+          <property key="coverage-enable" value=""/>
+          <property key="stack-guidance" value="false"/>
+        </XC8-CO>
+        <XC8-config-global>
+          <property key="advanced-elf" value="true"/>
+          <property key="constdata-progmem" value="true"/>
+          <property key="gcc-opt-driver-new" value="true"/>
+          <property key="gcc-opt-std" value="-std=c99"/>
+          <property key="gcc-output-file-format" value="dwarf-3"/>
+          <property key="mapped-progmem" value="false"/>
+          <property key="omit-pack-options" value="false"/>
+          <property key="omit-pack-options-new" value="1"/>
+          <property key="output-file-format" value="-mcof,+elf"/>
+          <property key="smart-io-format" value=""/>
+          <property key="stack-size-high" value="auto"/>
+          <property key="stack-size-low" value="auto"/>
+          <property key="stack-size-main" value="auto"/>
+          <property key="stack-type" value="compiled"/>
+          <property key="user-pack-device-support" value=""/>
+          <property key="wpo-lto" value="true"/>
+          <appendMe value="-gstrict-dwarf -mrelax -msmart-io-format=&quot;%u%d%s&quot; -Wall -Wextra -Wpedantic"/>
+        </XC8-config-global>
+      </item>
       <HI-TECH-COMP>
         <property key="additional-warnings" value="true"/>
         <property key="asmlist" value="true"/>
@@ -588,7 +697,7 @@
         <property key="memories.programmemory.ranges" value="0-1fff"/>
         <property key="poweroptions.powerenable" value="true"/>
         <property key="programmerToGoFilePath"
-                  value="C:/repos/motor_control_bemf_sin_dvrt/motor-control/mc-library/Apps/mc_demo_graph.X/debug/AVR_EB/mc_demo_graph_ptg"/>
+                  value="C:/REPOS/MCU8NPIAPPS/motor-control_f_1.2.0_RC1/mc-library/apps/mc_demo.X/debug/AVR16EB32_pro/mc_demo_ptg"/>
         <property key="programmerToGoImageName" value="mc_drive_open_loop_EB_DA_ptg"/>
         <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>
@@ -674,6 +783,8 @@
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="0-1fff"/>
         <property key="poweroptions.powerenable" value="true"/>
+        <property key="programmerToGoFilePath"
+                  value="C:/REPOS/MCU8NPIAPPS/motor-control-release/apps/mc_demo.X/debug/AVR16EB32_pro/mc_demo_ptg"/>
         <property key="programoptions.eraseb4program" value="true"/>
         <property key="programoptions.preservedataflash" value="false"/>
         <property key="programoptions.preservedataflash.ranges"

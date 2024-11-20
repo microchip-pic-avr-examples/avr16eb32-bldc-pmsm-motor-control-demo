@@ -41,7 +41,8 @@ typedef enum
     MC_FAULT_UNDERVOLTAGE_MASK = (1 << 2),
     MC_FAULT_OVERHEAT_MASK     = (1 << 3),
     MC_FAULT_OVERVOLTAGE_MASK  = (1 << 4),
-} fault_flags_t;
+    MC_FAULT_HALL_MASK         = (1 << 5),
+} mc_fault_flags_t;
 
 /**< Union for motor status. */
  typedef union
@@ -50,7 +51,7 @@ typedef enum
     {
         uint8_t state : 7;
         uint8_t direction : 1;
-        fault_flags_t flags;
+        mc_fault_flags_t flags;
     };
     uint16_t word;    
  } mc_status_t;
@@ -70,6 +71,18 @@ typedef void     (*mc_status_handler_t)(mc_status_t);
 /**< Speed as unsigned 16bit integer, angle_units/sample.
  * used with conversion macros: MC_RPM_TO_MCSPEED and MC_MCSPEED_TO_RPM */
 typedef uint16_t   mc_speed_t;
+typedef uint16_t   mc_position_t;
+
+/**< Enum for HALL sensor scan errors. */
+typedef enum
+{
+    HALL_NO_ERROR = 0,
+    HALL_ERROR_TOO_EARLY = 1,
+    HALL_ERROR_TOO_LATE = 2,
+    HALL_ERROR_DISCONNECTED = 4,
+    HALL_ERROR_WRONG_PATTERN = 8,
+    HALL_ERROR_MOTOR_STOPPED = 16,
+} mc_hall_error_t;
 
 
 #endif	/* MC_PUBLIC_TYPES_H */

@@ -16,5 +16,7 @@ inline uint8_t USART_Get(void) {if(USART0_IsRxReady()) return USART0_Read(); els
 #define USART_Initialize   USART0_Initialize
 #endif /* __AVR16EB32__ */
 
+
+
 #endif /*  USART_H  */
 
