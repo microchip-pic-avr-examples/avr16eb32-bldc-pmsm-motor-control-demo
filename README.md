@@ -433,13 +433,13 @@ The User Layer represents the application from the `main` file and it integrates
 <br> The Control Layer is a wrapper for Drive Layer, Sense Layer, Analog Interface Layer, Fault Layer and its APIs can be used in the `main.c` file by the user. This layer is responsible for updating the values of the PWM driving signals from the Drive Layer based on the feedback it got from the Sense Layer. Also, this layer adjusts the driving sequence to follow the Hall/BEMF sequence to keep the synchronization, and to handle fault situations. Lastly, this layer is used to get more abstract and device-independent APIs for monitoring the analog parameters.
 <br> All run-time functionality is done in a motor handler function called in an Interrupt Service Routine (ISR). Depending on the chosen switching frequency, selected by modifying the `PWM_FREQUENCY` parameter from `mc_config.h` file, the handler scheduling differs. The application supports switching frequencies in a range between 15 kHz and 45 kHz. If the switching frequency is lower or equal to 20 kHz the motor handler will be executed in a single ISR. If the switching frequency is over 20 kHz the motor handler will be executed in two consecutive ISRs. The time spent during the interrupt windows based on `PWM_FREQUENCY` can be observed from the examples below:
 
-<br> `PWM_FREQUENCY` is set to 20K kHz, the motor handler is called during an ISR each 50 µs:
+<br> `PWM_FREQUENCY` is set to 20 kHz, the motor handler is called during an ISR each 50 µs:
 
-<br><img src="images/mc_interrupt_time_diagram_20kHz.png">
+<br><img src="images/mc_interrupt_time_diagram_20KHz.png">
 
-<br> `PWM_FREQUENCY` is set to 40K kHz, the motor handler content is split between two consecutive ISR, each called every 25 µs:
+<br> `PWM_FREQUENCY` is set to 40 kHz, the motor handler content is split between two consecutive ISR, each called every 25 µs:
 
-<br><img src="images/mc_interrupt_time_diagram_40kHz.png">
+<br><img src="images/mc_interrupt_time_diagram_40KHz.png">
 
 <br> The Control layer uses a state machine consisting of three states (`MOTOR_IDLE`, `MOTOR_RUNNING` and `MOTOR_FAULT`) to be aware at all times about the motor status and what action needs to be taken next. The `START_STOP_EVENT` coming from the main application starts or stops the motor. The `FAULT_SET_EVENT` and `FAULT_CLEAR_EVENT` are used to trigger and clear fault situations. The state machine flowchart is depicted in the image below:
 
